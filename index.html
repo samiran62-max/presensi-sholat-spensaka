@@ -68,24 +68,31 @@
         </button>
       </div>
 
-      <!-- TAB MENU -->
+      <!-- TAB MENU BERDASARKAN HAK AKSES -->
       <div class="flex border-b border-slate-200 bg-white rounded-t-xl overflow-hidden border">
+        <!-- SEMUA ROLE -->
         <button id="tabBtnPresensi" onclick="switchTab('presensi')" 
-                class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50">
-          <i class="fa-solid fa-camera mr-1"></i> Presensi Otomatis
+                class="flex-1 py-2.5 text-center text-[11px] font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50">
+          <i class="fa-solid fa-camera block mb-0.5 text-sm"></i> Presensi
         </button>
-        <!-- DITAMPILKAN HANYA UNTUK ADMIN & GURU -->
+        <!-- ADMIN & WALI KELAS -->
         <button id="tabBtnWajah" onclick="switchTab('wajah')" 
-                class="flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600">
-          <i class="fa-solid fa-face-smile mr-1"></i> Rekam Wajah
+                class="flex-1 py-2.5 text-center text-[11px] font-bold text-slate-500 hover:text-emerald-600">
+          <i class="fa-solid fa-face-smile block mb-0.5 text-sm"></i> Rekam Wajah
         </button>
+        <!-- ADMIN, GURU, WALI KELAS -->
         <button id="tabBtnRekap" onclick="switchTab('rekap')" 
-                class="flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600">
-          <i class="fa-solid fa-list-check mr-1"></i> Rekap
+                class="flex-1 py-2.5 text-center text-[11px] font-bold text-slate-500 hover:text-emerald-600">
+          <i class="fa-solid fa-list-check block mb-0.5 text-sm"></i> Rekap
+        </button>
+        <!-- KHUSUS ADMIN -->
+        <button id="tabBtnUsers" onclick="switchTab('users')" 
+                class="flex-1 py-2.5 text-center text-[11px] font-bold text-slate-500 hover:text-emerald-600">
+          <i class="fa-solid fa-users-gear block mb-0.5 text-sm"></i> Kelola User
         </button>
       </div>
 
-      <!-- CONTENT TAB 1: MODE PRESENSI OTOMATIS -->
+      <!-- TAB 1: PRESENSI OTOMATIS (SEMUA ROLE) -->
       <div id="tabContentPresensi" class="bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kegiatan / Sholat:</label>
@@ -101,7 +108,6 @@
           </select>
         </div>
 
-        <!-- PILIHAN KAMERA (HANYA MUNCUL DI HP) -->
         <div id="cameraFacingContainer" class="hidden">
           <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kamera HP:</label>
           <select id="cameraFacingMode" onchange="changeCameraFacingMode()" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
@@ -110,17 +116,15 @@
           </select>
         </div>
 
-        <!-- TAMPILAN KAMERA PEMINDAI WAJAH -->
         <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center border shadow-inner">
           <video id="webcamPresensi" autoplay playsinline muted class="w-full h-full object-cover"></video>
-          
           <div id="presensiStatus" class="absolute bottom-2 left-2 right-2 bg-black/60 text-white px-3 py-1.5 rounded-lg text-xs text-center transition-all">
             <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat Model Wajah...
           </div>
         </div>
       </div>
 
-      <!-- CONTENT TAB 2: PEREKAMAN WAJAH SISWA BARU (KHUSUS ADMIN & GURU) -->
+      <!-- TAB 2: REKAM WAJAH (ADMIN & WALI KELAS) -->
       <div id="tabContentWajah" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div class="bg-amber-50 border border-amber-200 text-amber-800 p-2.5 rounded-lg text-xs">
           <i class="fa-solid fa-id-card mr-1"></i> Mode Pendaftaran Master Wajah Siswa Baru.
@@ -152,7 +156,7 @@
         </button>
       </div>
 
-      <!-- CONTENT TAB 3: REKAP PRESENSI -->
+      <!-- TAB 3: REKAP PRESENSI (ADMIN, GURU, WALI KELAS) -->
       <div id="tabContentRekap" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-3 shadow-sm">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-sm text-slate-700">Riwayat Presensi Siswa</h3>
@@ -179,6 +183,56 @@
         </div>
       </div>
 
+      <!-- TAB 4: KELOLA USER (KHUSUS ADMIN) -->
+      <div id="tabContentUsers" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
+        <h3 class="font-bold text-sm text-slate-700">Tambah Akun Pengguna Baru</h3>
+        
+        <form onsubmit="handleTambahUser(event)" class="space-y-3 bg-slate-50 p-3 rounded-xl border">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Username</label>
+            <input type="text" id="newUsername" required placeholder="Username login" class="w-full px-2.5 py-1.5 border rounded text-xs bg-white">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Password</label>
+            <input type="password" id="newPassword" required placeholder="Password" class="w-full px-2.5 py-1.5 border rounded text-xs bg-white">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Lengkap</label>
+            <input type="text" id="newNama" required placeholder="Nama pemilik akun" class="w-full px-2.5 py-1.5 border rounded text-xs bg-white">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Role / Peran</label>
+            <select id="newRole" class="w-full px-2.5 py-1.5 border rounded text-xs bg-white">
+              <option value="Admin">Admin</option>
+              <option value="Guru">Guru</option>
+              <option value="Wali Kelas">Wali Kelas</option>
+              <option value="Petugas">Petugas</option>
+            </select>
+          </div>
+          <button type="submit" id="btnTambahUser" class="w-full bg-emerald-600 text-white font-semibold py-2 rounded text-xs">
+            <i class="fa-solid fa-plus mr-1"></i> Tambah User Baru
+          </button>
+        </form>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-xs text-slate-700">Daftar Akun Terdaftar</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 border-b">
+                  <th class="p-2">User</th>
+                  <th class="p-2">Nama</th>
+                  <th class="p-2">Role</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <tr><td colspan="3" class="p-3 text-center text-slate-400">Memuat user...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </main>
@@ -196,7 +250,6 @@
     let lastPresensiTime = {};
     let currentTab = 'presensi';
 
-    // Deteksi Perangkat HP / Smartphone
     const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     async function postToGoogleSheets(payload) {
@@ -239,7 +292,7 @@
           alert(result.message);
         }
       } catch (err) {
-        alert("Gagal terhubung ke Google Sheets. Pastikan Akses Apps Script diatur ke 'Siapa Saja' (Anyone).");
+        alert("Gagal terhubung ke Google Sheets.");
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-1.5"></i> Buka Aplikasi';
@@ -252,29 +305,37 @@
       document.getElementById('userLabel').innerText = currentUser.nama;
       document.getElementById('roleBadge').innerText = currentUser.role;
 
-      // Pilihan kamera HP
-      const cameraFacingContainer = document.getElementById('cameraFacingContainer');
       if (isMobile) {
-        cameraFacingContainer.classList.remove('hidden');
-      } else {
-        cameraFacingContainer.classList.add('hidden');
+        document.getElementById('cameraFacingContainer').classList.remove('hidden');
       }
 
-      // BATASI MENU BERDASARKAN ROLE
-      const roleName = currentUser.role ? currentUser.role.toString().trim().toLowerCase() : '';
-      const tabWajah = document.getElementById('tabBtnWajah');
+      // KONTROL AKSES TAB SESUAI ROLE DENGAN KETAT
+      const role = currentUser.role ? currentUser.role.toString().trim().toLowerCase() : '';
 
-      // Hanya Admin dan Guru yang dapat mengakses menu Rekam Wajah
-      if (roleName === 'admin' || roleName === 'guru') {
-        tabWajah.classList.remove('hidden');
-      } else {
-        tabWajah.classList.add('hidden'); // Disembunyikan untuk Wali Kelas & Petugas
+      const btnWajah = document.getElementById('tabBtnWajah');
+      const btnRekap = document.getElementById('tabBtnRekap');
+      const btnUsers = document.getElementById('tabBtnUsers');
+
+      btnWajah.classList.add('hidden');
+      btnRekap.classList.add('hidden');
+      btnUsers.classList.add('hidden');
+
+      if (role === 'admin') {
+        btnWajah.classList.remove('hidden');
+        btnRekap.classList.remove('hidden');
+        btnUsers.classList.remove('hidden');
+      } else if (role === 'wali kelas') {
+        btnWajah.classList.remove('hidden');
+        btnRekap.classList.remove('hidden');
+      } else if (role === 'guru') {
+        btnRekap.classList.remove('hidden');
+      } else if (role === 'petugas') {
+        // Hanya Presensi
       }
 
       if (!isModelsLoaded) await loadModels();
       await syncMasterWajah();
       switchTab('presensi');
-      loadRekap();
     }
 
     function handleLogout() {
@@ -331,7 +392,7 @@
           videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
           document.getElementById(elementId).srcObject = videoStream;
         } catch(e) {
-          console.log("Kamera tidak aktif/tidak tersedia.");
+          console.log("Kamera tidak aktif.");
         }
       }
     }
@@ -399,7 +460,6 @@
                 if (result.status === 'success') {
                   statusDiv.className = "absolute bottom-2 left-2 right-2 bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold text-center shadow";
                   statusDiv.innerHTML = `<i class="fa-solid fa-check-double mr-1"></i> Berhasil Presensi: ${namaAnak} (${idAnak})`;
-                  loadRekap();
                 }
                 setTimeout(() => { isProcessingPresensi = false; }, 2000);
               } else {
@@ -475,6 +535,7 @@
 
     async function loadRekap() {
       const tbody = document.getElementById('rekapTableBody');
+      tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-slate-400">Memuat data...</td></tr>';
       try {
         const result = await postToGoogleSheets({ action: "get_rekap" });
 
@@ -494,26 +555,81 @@
       }
     }
 
+    async function loadUsers() {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-slate-400">Memuat data...</td></tr>';
+      try {
+        const result = await postToGoogleSheets({ action: "get_users" });
+        if (result.status === 'success' && result.data.length > 0) {
+          tbody.innerHTML = result.data.map(u => `
+            <tr class="border-b text-[11px]">
+              <td class="p-2 font-mono font-semibold">${u.username}</td>
+              <td class="p-2">${u.nama}</td>
+              <td class="p-2"><span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-bold">${u.role}</span></td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-slate-400">Belum ada user.</td></tr>';
+        }
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-red-400">Gagal memuat user.</td></tr>';
+      }
+    }
+
+    async function handleTambahUser(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnTambahUser');
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+
+      try {
+        const result = await postToGoogleSheets({
+          action: "simpan_user",
+          username: document.getElementById('newUsername').value.trim(),
+          password: document.getElementById('newPassword').value.trim(),
+          nama: document.getElementById('newNama').value.trim(),
+          role: document.getElementById('newRole').value
+        });
+
+        alert(result.message);
+        if (result.status === 'success') {
+          document.getElementById('newUsername').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('newNama').value = '';
+          loadUsers();
+        }
+      } catch(e) {
+        alert("Gagal menambah user.");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Tambah User Baru';
+      }
+    }
+
     function switchTab(tab) {
       currentTab = tab;
       const btnP = document.getElementById('tabBtnPresensi');
       const btnW = document.getElementById('tabBtnWajah');
       const btnR = document.getElementById('tabBtnRekap');
+      const btnU = document.getElementById('tabBtnUsers');
       
       const contentP = document.getElementById('tabContentPresensi');
       const contentW = document.getElementById('tabContentWajah');
       const contentR = document.getElementById('tabContentRekap');
+      const contentU = document.getElementById('tabContentUsers');
 
-      const activeClass = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50";
-      const inactiveClass = "flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600";
+      const activeClass = "flex-1 py-2.5 text-center text-[11px] font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50";
+      const inactiveClass = "flex-1 py-2.5 text-center text-[11px] font-bold text-slate-500 hover:text-emerald-600";
 
       contentP.classList.add('hidden');
       contentW.classList.add('hidden');
       contentR.classList.add('hidden');
+      contentU.classList.add('hidden');
 
       btnP.className = inactiveClass;
       btnW.className = inactiveClass;
       btnR.className = inactiveClass;
+      btnU.className = inactiveClass;
 
       if (tab === 'presensi') {
         contentP.classList.remove('hidden');
@@ -527,6 +643,12 @@
         contentR.classList.remove('hidden');
         btnR.className = activeClass;
         stopCamera();
+        loadRekap();
+      } else if (tab === 'users') {
+        contentU.classList.remove('hidden');
+        btnU.className = activeClass;
+        stopCamera();
+        loadUsers();
       }
     }
 
