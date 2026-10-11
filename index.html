@@ -299,6 +299,33 @@
       }
     }
 
+    // CEK HAK AKSES PERAN
+    function checkRolePermissions() {
+      if (!currentUser || !currentUser.role) return { wajah: false, rekap: false, users: false };
+      
+      const role = currentUser.role.toString().trim().toLowerCase();
+
+      if (role === 'admin') {
+        return { wajah: true, rekap: true, users: true };
+      } else if (role === 'wali kelas' || role === 'walikelas' || role === 'wali_kelas') {
+        return { wajah: true, rekap: true, users: false };
+      } else if (role === 'guru') {
+        return { wajah: false, rekap: true, users: false };
+      } else if (role === 'petugas') {
+        return { wajah: false, rekap: false, users: false };
+      }
+      
+      return { wajah: false, rekap: false, users: false };
+    }
+
+    function applyRolePermissions() {
+      const p = checkRolePermissions();
+      
+      document.getElementById('tabBtnWajah').style.display = p.wajah ? '' : 'none';
+      document.getElementById('tabBtnRekap').style.display = p.rekap ? '' : 'none';
+      document.getElementById('tabBtnUsers').style.display = p.users ? '' : 'none';
+    }
+
     async function initDashboard() {
       document.getElementById('loginView').classList.add('hidden');
       document.getElementById('dashboardView').classList.remove('hidden');
@@ -309,29 +336,7 @@
         document.getElementById('cameraFacingContainer').classList.remove('hidden');
       }
 
-      // KONTROL AKSES TAB SESUAI ROLE DENGAN KETAT
-      const role = currentUser.role ? currentUser.role.toString().trim().toLowerCase() : '';
-
-      const btnWajah = document.getElementById('tabBtnWajah');
-      const btnRekap = document.getElementById('tabBtnRekap');
-      const btnUsers = document.getElementById('tabBtnUsers');
-
-      btnWajah.classList.add('hidden');
-      btnRekap.classList.add('hidden');
-      btnUsers.classList.add('hidden');
-
-      if (role === 'admin') {
-        btnWajah.classList.remove('hidden');
-        btnRekap.classList.remove('hidden');
-        btnUsers.classList.remove('hidden');
-      } else if (role === 'wali kelas') {
-        btnWajah.classList.remove('hidden');
-        btnRekap.classList.remove('hidden');
-      } else if (role === 'guru') {
-        btnRekap.classList.remove('hidden');
-      } else if (role === 'petugas') {
-        // Hanya Presensi
-      }
+      applyRolePermissions();
 
       if (!isModelsLoaded) await loadModels();
       await syncMasterWajah();
@@ -607,6 +612,11 @@
     }
 
     function switchTab(tab) {
+      const p = checkRolePermissions();
+      if (tab === 'wajah' && !p.wajah) return;
+      if (tab === 'rekap' && !p.rekap) return;
+      if (tab === 'users' && !p.users) return;
+
       currentTab = tab;
       const btnP = document.getElementById('tabBtnPresensi');
       const btnW = document.getElementById('tabBtnWajah');
@@ -630,6 +640,9 @@
       btnW.className = inactiveClass;
       btnR.className = inactiveClass;
       btnU.className = inactiveClass;
+
+      // Pertahankan sembunyi/tampil sesuai hak akses
+      applyRolePermissions();
 
       if (tab === 'presensi') {
         contentP.classList.remove('hidden');
