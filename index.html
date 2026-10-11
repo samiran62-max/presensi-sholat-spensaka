@@ -3,34 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presensi Sholat Spensaka - SMP Negeri 1 Kandat</title>
+  <title>PRESENSI SHOLAT SPENSAKA SMP NEGERI 1 KANDAT</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- LIBRARY PEMINDAI WAJAH OTOMATIS -->
+  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800">
 
-  <!-- HEADER -->
+  <!-- HEADER UTAMA -->
   <header class="bg-emerald-700 text-white p-4 shadow-md">
     <div class="max-w-md mx-auto flex items-center justify-center space-x-3 text-center">
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRESVnGGzgEIkf9q6nFxX3TJ2oCPb2g8wWhobdhB6didA&s" 
            alt="Logo Sekolah" class="w-12 h-12 rounded-full bg-white p-1 object-contain shadow">
       <div class="text-left">
-        <h1 class="font-bold text-base leading-tight">PRESENSI SHOLAT SPENSAKA</h1>
-        <p class="text-xs text-emerald-200">SMP NEGERI 1 KANDAT</p>
+        <h1 class="font-bold text-base leading-tight uppercase">PRESENSI SHOLAT SPENSAKA</h1>
+        <p class="text-xs text-emerald-200 uppercase">SMP NEGERI 1 KANDAT</p>
       </div>
     </div>
   </header>
 
   <main class="max-w-md mx-auto p-4">
 
-    <!-- 1. HALAMAN LOGIN -->
+    <!-- 1. HALAMAN LOGIN PETUGAS -->
     <div id="loginView" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
       <div class="text-center space-y-1">
         <div class="inline-block p-3 bg-emerald-50 rounded-full text-emerald-700 mb-1">
-          <i class="fa-solid fa-user-check text-2xl"></i>
+          <i class="fa-solid fa-camera-rotate text-2xl"></i>
         </div>
-        <h2 class="text-lg font-bold text-emerald-800">Masuk Aplikasi Presensi</h2>
-        <p class="text-xs text-slate-500">Silakan login sebagai Admin, Guru, atau Petugas</p>
+        <h2 class="text-lg font-bold text-emerald-800 uppercase">LOGIN SISTEM PRESENSI</h2>
+        <p class="text-xs text-slate-500">Masukkan akun Petugas / Guru untuk membuka pemindai</p>
       </div>
 
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
@@ -46,7 +48,7 @@
         </div>
         <button type="submit" id="btnLogin" 
                 class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg text-sm transition shadow">
-          <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk Sekarang
+          <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Buka Aplikasi
         </button>
       </form>
     </div>
@@ -66,44 +68,26 @@
         </button>
       </div>
 
-      <!-- TAB MENU DENGAN HAK AKSES -->
+      <!-- TAB MENU -->
       <div class="flex border-b border-slate-200 bg-white rounded-t-xl overflow-hidden border">
-        <!-- Tab Presensi (Semua Role) -->
         <button id="tabBtnPresensi" onclick="switchTab('presensi')" 
                 class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50">
-          <i class="fa-solid fa-camera mr-1"></i> Presensi
+          <i class="fa-solid fa-camera mr-1"></i> Presensi Otomatis
         </button>
-        
-        <!-- Tab Perekaman Wajah (Khusus Admin & Guru) -->
         <button id="tabBtnWajah" onclick="switchTab('wajah')" 
                 class="flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600">
           <i class="fa-solid fa-face-smile mr-1"></i> Rekam Wajah
         </button>
-
-        <!-- Tab Rekap (Semua Role) -->
         <button id="tabBtnRekap" onclick="switchTab('rekap')" 
                 class="flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600">
           <i class="fa-solid fa-list-check mr-1"></i> Rekap
         </button>
       </div>
 
-      <!-- CONTENT TAB 1: MODE PRESENSI -->
+      <!-- CONTENT TAB 1: MODE PRESENSI OTOMATIS -->
       <div id="tabContentPresensi" class="bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">ID Anak</label>
-            <input type="text" id="idAnak" placeholder="Contoh: a1" 
-                   class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Anak</label>
-            <input type="text" id="namaAnak" placeholder="Contoh: sam" 
-                   class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
-          </div>
-        </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kegiatan / Sholat</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kegiatan / Sholat:</label>
           <select id="jenisSholat" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
             <option value="Maghrib">Maghrib</option>
             <option value="Isya">Isya</option>
@@ -116,23 +100,21 @@
           </select>
         </div>
 
-        <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center border">
-          <video id="webcamPresensi" autoplay playsinline class="w-full h-full object-cover"></video>
-          <div class="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded text-[10px]">
-            Kamera Presensi Aktif
+        <!-- TAMPILAN KAMERA PEMINDAI WAJAH -->
+        <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center border shadow-inner">
+          <video id="webcamPresensi" autoplay playsinline muted class="w-full h-full object-cover"></video>
+          
+          <!-- BANNER STATUS PEMINDAIAN WAJAH -->
+          <div id="presensiStatus" class="absolute bottom-2 left-2 right-2 bg-black/60 text-white px-3 py-1.5 rounded-lg text-xs text-center transition-all">
+            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat Model Wajah...
           </div>
         </div>
-
-        <button onclick="submitPresensi()" id="btnSubmitPresensi" 
-                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl text-sm transition shadow">
-          <i class="fa-solid fa-check-circle mr-1.5"></i> Simpan Presensi Sholat
-        </button>
       </div>
 
-      <!-- CONTENT TAB 2: PEREKAMAN WAJAH (GURU & ADMIN ONLY) -->
+      <!-- CONTENT TAB 2: PEREKAMAN WAJAH SISWA BARU (GURU/ADMIN) -->
       <div id="tabContentWajah" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div class="bg-amber-50 border border-amber-200 text-amber-800 p-2.5 rounded-lg text-xs">
-          <i class="fa-solid fa-triangle-exclamation mr-1"></i> Mode Perekaman Master Wajah Siswa Baru.
+          <i class="fa-solid fa-id-card mr-1"></i> Mode Pendaftaran Master Wajah Siswa Baru.
         </div>
 
         <div class="grid grid-cols-2 gap-2">
@@ -149,7 +131,7 @@
         </div>
 
         <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center border">
-          <video id="webcamWajah" autoplay playsinline class="w-full h-full object-cover"></video>
+          <video id="webcamWajah" autoplay playsinline muted class="w-full h-full object-cover"></video>
           <div class="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded text-[10px]">
             Kamera Perekaman Wajah
           </div>
@@ -157,7 +139,7 @@
 
         <button onclick="submitRekamWajah()" id="btnSubmitWajah" 
                 class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm transition shadow">
-          <i class="fa-solid fa-id-card mr-1.5"></i> Simpan Data Master Wajah
+          <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Data Master Wajah
         </button>
       </div>
 
@@ -195,9 +177,16 @@
   <script>
     // MASUKKAN URL APPS SCRIPT ANDA DI SINI
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyspwEcsUFbIS9jq_2xL_XLo-0_fCExHy9Q86Ws8pWBs4Jp20HacC8ufwADhXCi4y1Z/exec";
+    const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
 
     let currentUser = null;
     let videoStream = null;
+    let faceMatcher = null;
+    let isModelsLoaded = false;
+    let presensiInterval = null;
+    let isProcessingPresensi = false;
+    let lastPresensiTime = {};
+    let currentTab = 'presensi';
 
     async function postToGoogleSheets(payload) {
       const response = await fetch(SCRIPT_URL, {
@@ -208,7 +197,19 @@
       return await response.json();
     }
 
-    // PROSES LOGIN
+    // LOAD MODEL AI WAJAH
+    async function loadModels() {
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        isModelsLoaded = true;
+      } catch(e) {
+        console.error("Gagal load model AI:", e);
+      }
+    }
+
+    // LOGIN
     async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('loginUsername').value;
@@ -229,201 +230,14 @@
           alert(result.message);
         }
       } catch (err) {
-        alert("Gagal terhubung ke Google Sheets. Pastikan URL Apps Script sudah benar & Akses diatur ke 'Siapa Saja' (Anyone).");
+        alert("Gagal terhubung ke Google Sheets. Pastikan Akses Apps Script diatur ke 'Siapa Saja' (Anyone).");
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk Sekarang';
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-1.5"></i> Buka Aplikasi';
       }
     }
 
-    function initDashboard() {
+    async function initDashboard() {
       document.getElementById('loginView').classList.add('hidden');
       document.getElementById('dashboardView').classList.remove('hidden');
-      document.getElementById('userLabel').innerText = currentUser.nama;
-      document.getElementById('roleBadge').innerText = currentUser.role;
-
-      // ATUR ATURAN TAMPILAN SESUAI ROLE
-      const tabWajah = document.getElementById('tabBtnWajah');
-      if (currentUser.role.toLowerCase() === 'petugas') {
-        tabWajah.classList.add('hidden'); // Petugas TIDAK bisa rekam wajah
-      } else {
-        tabWajah.classList.remove('hidden'); // Admin & Guru BISA rekam wajah
-      }
-
-      startCamera('webcamPresensi');
-      loadRekap();
-    }
-
-    function handleLogout() {
-      localStorage.removeItem('spensaka_app_user');
-      currentUser = null;
-      stopCamera();
-      document.getElementById('dashboardView').classList.add('hidden');
-      document.getElementById('loginView').classList.remove('hidden');
-    }
-
-    // OPERASI KAMERA
-    async function startCamera(elementId) {
-      stopCamera();
-      try {
-        videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } }
-        });
-        document.getElementById(elementId).srcObject = videoStream;
-      } catch (err) {
-        console.log("Kamera tidak aktif/izin ditolak.");
-      }
-    }
-
-    function stopCamera() {
-      if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
-      }
-    }
-
-    // SIMPAN PRESENSI
-    async function submitPresensi() {
-      const idAnak = document.getElementById('idAnak').value.trim();
-      const namaAnak = document.getElementById('namaAnak').value.trim();
-      const jenisSholat = document.getElementById('jenisSholat').value;
-      const btn = document.getElementById('btnSubmitPresensi');
-
-      if (!idAnak || !namaAnak) {
-        alert("Harap isi ID Anak dan Nama Anak terlebih dahulu!");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...';
-
-      try {
-        const result = await postToGoogleSheets({
-          action: "simpan_presensi",
-          idAnak: idAnak,
-          namaAnak: namaAnak,
-          jenisSholat: jenisSholat
-        });
-
-        if (result.status === 'success') {
-          alert("Alhamdulillah, " + result.message);
-          document.getElementById('idAnak').value = '';
-          document.getElementById('namaAnak').value = '';
-          loadRekap();
-        } else {
-          alert("Gagal: " + result.message);
-        }
-      } catch (err) {
-        alert("Gagal menyimpan data presensi.");
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-check-circle mr-1.5"></i> Simpan Presensi Sholat';
-      }
-    }
-
-    // SIMPAN REKAM WAJAH (GURU/ADMIN)
-    async function submitRekamWajah() {
-      const idAnak = document.getElementById('idAnakWajah').value.trim();
-      const namaAnak = document.getElementById('namaAnakWajah').value.trim();
-      const btn = document.getElementById('btnSubmitWajah');
-
-      if (!idAnak || !namaAnak) {
-        alert("Harap isi ID Anak dan Nama Anak Baru!");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Merekam...';
-
-      try {
-        const result = await postToGoogleSheets({
-          action: "simpan_wajah",
-          idAnak: idAnak,
-          namaAnak: namaAnak
-        });
-
-        if (result.status === 'success') {
-          alert("Sukses! " + result.message);
-          document.getElementById('idAnakWajah').value = '';
-          document.getElementById('namaAnakWajah').value = '';
-        } else {
-          alert("Gagal: " + result.message);
-        }
-      } catch (err) {
-        alert("Gagal merekam wajah.");
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-id-card mr-1.5"></i> Simpan Data Master Wajah';
-      }
-    }
-
-    // REKAP PRESENSI
-    async function loadRekap() {
-      const tbody = document.getElementById('rekapTableBody');
-      tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data...</td></tr>';
-
-      try {
-        const result = await postToGoogleSheets({ action: "get_rekap" });
-
-        if (result.status === 'success' && result.data.length > 0) {
-          tbody.innerHTML = result.data.map(item => `
-            <tr class="border-b hover:bg-slate-50 text-[11px]">
-              <td class="p-2 font-mono text-slate-500">${item.waktu}</td>
-              <td class="p-2 font-semibold text-slate-700">${item.namaAnak} <span class="text-slate-400">(${item.idAnak})</span></td>
-              <td class="p-2"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-medium border border-emerald-200">${item.jenisSholat}</span></td>
-            </tr>
-          `).join('');
-        } else {
-          tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Belum ada data presensi.</td></tr>';
-        }
-      } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-400">Gagal mengambil rekap data.</td></tr>';
-      }
-    }
-
-    // NAVIGASI TAB
-    function switchTab(tab) {
-      const btnP = document.getElementById('tabBtnPresensi');
-      const btnW = document.getElementById('tabBtnWajah');
-      const btnR = document.getElementById('tabBtnRekap');
-      
-      const contentP = document.getElementById('tabContentPresensi');
-      const contentW = document.getElementById('tabContentWajah');
-      const contentR = document.getElementById('tabContentRekap');
-
-      const activeClass = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50";
-      const inactiveClass = "flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600";
-
-      contentP.classList.add('hidden');
-      contentW.classList.add('hidden');
-      contentR.classList.add('hidden');
-
-      btnP.className = inactiveClass;
-      btnW.className = inactiveClass;
-      btnR.className = inactiveClass;
-
-      if (tab === 'presensi') {
-        contentP.classList.remove('hidden');
-        btnP.className = activeClass;
-        startCamera('webcamPresensi');
-      } else if (tab === 'wajah') {
-        contentW.classList.remove('hidden');
-        btnW.className = activeClass;
-        startCamera('webcamWajah');
-      } else if (tab === 'rekap') {
-        contentR.classList.remove('hidden');
-        btnR.className = activeClass;
-        stopCamera();
-      }
-    }
-
-    // AUTO LOGIN
-    window.onload = () => {
-      const savedUser = localStorage.getItem('spensaka_app_user');
-      if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        initDashboard();
-      }
-    };
-  </script>
-</body>
-</html>
+      document.getElementById('userLabel').innerText = currentUser.
