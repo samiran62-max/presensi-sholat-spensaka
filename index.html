@@ -100,18 +100,16 @@
           </select>
         </div>
 
-        <!-- TAMPILAN KAMERA PEMINDAI WAJAH -->
         <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center border shadow-inner">
           <video id="webcamPresensi" autoplay playsinline muted class="w-full h-full object-cover"></video>
           
-          <!-- BANNER STATUS PEMINDAIAN WAJAH -->
           <div id="presensiStatus" class="absolute bottom-2 left-2 right-2 bg-black/60 text-white px-3 py-1.5 rounded-lg text-xs text-center transition-all">
             <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat Model Wajah...
           </div>
         </div>
       </div>
 
-      <!-- CONTENT TAB 2: PEREKAMAN WAJAH SISWA BARU (GURU/ADMIN) -->
+      <!-- CONTENT TAB 2: PEREKAMAN WAJAH SISWA BARU -->
       <div id="tabContentWajah" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div class="bg-amber-50 border border-amber-200 text-amber-800 p-2.5 rounded-lg text-xs">
           <i class="fa-solid fa-id-card mr-1"></i> Mode Pendaftaran Master Wajah Siswa Baru.
@@ -175,7 +173,6 @@
   </main>
 
   <script>
-    // MASUKKAN URL APPS SCRIPT ANDA DI SINI
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyspwEcsUFbIS9jq_2xL_XLo-0_fCExHy9Q86Ws8pWBs4Jp20HacC8ufwADhXCi4y1Z/exec";
     const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
 
@@ -197,7 +194,6 @@
       return await response.json();
     }
 
-    // LOAD MODEL AI WAJAH
     async function loadModels() {
       try {
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
@@ -209,7 +205,6 @@
       }
     }
 
-    // LOGIN
     async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('loginUsername').value;
@@ -240,4 +235,262 @@
     async function initDashboard() {
       document.getElementById('loginView').classList.add('hidden');
       document.getElementById('dashboardView').classList.remove('hidden');
-      document.getElementById('userLabel').innerText = currentUser.
+      document.getElementById('userLabel').innerText = currentUser.nama;
+      document.getElementById('roleBadge').innerText = currentUser.role;
+
+      const tabWajah = document.getElementById('tabBtnWajah');
+      if (currentUser.role.toLowerCase() === 'petugas') {
+        tabWajah.classList.add('hidden');
+      } else {
+        tabWajah.classList.remove('hidden');
+      }
+
+      if (!isModelsLoaded) await loadModels();
+      await syncMasterWajah();
+      switchTab('presensi');
+      loadRekap();
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('spensaka_app_user');
+      currentUser = null;
+      stopCamera();
+      if (presensiInterval) clearInterval(presensiInterval);
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('loginView').classList.remove('hidden');
+    }
+
+    async function syncMasterWajah() {
+      try {
+        const result = await postToGoogleSheets({ action: "get_master_wajah" });
+        if (result.status === 'success' && result.data.length > 0) {
+          const masterDescriptors = result.data.map(item => {
+            try {
+              const vec = JSON.parse(item.vectorWajah);
+              if (Array.isArray(vec) && vec.length === 128) {
+                return new faceapi.LabeledFaceDescriptors(
+                  `${item.idAnak}___${item.namaAnak}`,
+                  [new Float32Array(vec)]
+                );
+              }
+            } catch(e) {}
+            return null;
+          }).filter(x => x !== null);
+
+          if (masterDescriptors.length > 0) {
+            faceMatcher = new faceapi.FaceMatcher(masterDescriptors, 0.50);
+          }
+        }
+      } catch(e) {
+        console.error("Gagal sync master wajah:", e);
+      }
+    }
+
+    async function startCamera(elementId) {
+      stopCamera();
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "user" } }
+        });
+        document.getElementById(elementId).srcObject = videoStream;
+      } catch (err) {
+        console.log("Kamera tidak aktif.");
+      }
+    }
+
+    function stopCamera() {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+      if (presensiInterval) clearInterval(presensiInterval);
+    }
+
+    function startAutoPresensiLoop() {
+      if (presensiInterval) clearInterval(presensiInterval);
+
+      presensiInterval = setInterval(async () => {
+        if (isProcessingPresensi || currentTab !== 'presensi') return;
+
+        const video = document.getElementById('webcamPresensi');
+        const statusDiv = document.getElementById('presensiStatus');
+
+        if (!video || video.paused || video.ended || !isModelsLoaded) return;
+
+        if (!faceMatcher) {
+          statusDiv.className = "absolute bottom-2 left-2 right-2 bg-amber-600/90 text-white px-3 py-1.5 rounded-lg text-xs text-center";
+          statusDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Master Wajah kosong. Daftarkan di Rekam Wajah.`;
+          return;
+        }
+
+        try {
+          const detection = await faceapi.detectSingleFace(
+            video, 
+            new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
+          ).withFaceLandmarks().withFaceDescriptor();
+
+          if (detection) {
+            const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+
+            if (bestMatch.label !== 'unknown') {
+              const [idAnak, namaAnak] = bestMatch.label.split('___');
+              const now = Date.now();
+
+              if (!lastPresensiTime[idAnak] || (now - lastPresensiTime[idAnak] > 10000)) {
+                isProcessingPresensi = true;
+                lastPresensiTime[idAnak] = now;
+
+                statusDiv.className = "absolute bottom-2 left-2 right-2 bg-emerald-600/95 text-white px-3 py-1.5 rounded-lg text-xs font-bold text-center animate-pulse shadow";
+                statusDiv.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Terdeteksi: ${namaAnak} (${idAnak}) - Menyimpan...`;
+
+                const jenisSholat = document.getElementById('jenisSholat').value;
+                const result = await postToGoogleSheets({
+                  action: "simpan_presensi",
+                  idAnak: idAnak,
+                  namaAnak: namaAnak,
+                  jenisSholat: jenisSholat
+                });
+
+                if (result.status === 'success') {
+                  statusDiv.className = "absolute bottom-2 left-2 right-2 bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold text-center shadow";
+                  statusDiv.innerHTML = `<i class="fa-solid fa-check-double mr-1"></i> Berhasil Presensi: ${namaAnak} (${idAnak})`;
+                  loadRekap();
+                }
+                setTimeout(() => { isProcessingPresensi = false; }, 2000);
+              } else {
+                statusDiv.className = "absolute bottom-2 left-2 right-2 bg-blue-600/90 text-white px-3 py-1.5 rounded-lg text-xs font-bold text-center";
+                statusDiv.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> ${namaAnak} (${idAnak}) Sudah Presensi`;
+              }
+            } else {
+              statusDiv.className = "absolute bottom-2 left-2 right-2 bg-black/60 text-white px-3 py-1.5 rounded-lg text-xs text-center";
+              statusDiv.innerHTML = `<i class="fa-solid fa-face-rolling-eyes mr-1"></i> Wajah tidak terdaftar di MasterWajah`;
+            }
+          } else {
+            statusDiv.className = "absolute bottom-2 left-2 right-2 bg-black/60 text-white px-3 py-1.5 rounded-lg text-xs text-center";
+            statusDiv.innerHTML = `<i class="fa-solid fa-camera mr-1"></i> Posisikan wajah di depan kamera...`;
+          }
+        } catch (e) {
+          console.error("Presensi loop error:", e);
+        }
+      }, 600);
+    }
+
+    async function submitRekamWajah() {
+      const idAnak = document.getElementById('idAnakWajah').value.trim();
+      const namaAnak = document.getElementById('namaAnakWajah').value.trim();
+      const video = document.getElementById('webcamWajah');
+      const btn = document.getElementById('btnSubmitWajah');
+
+      if (!idAnak || !namaAnak) {
+        alert("Harap isi ID Anak dan Nama Anak Baru terlebih dahulu!");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Memindai Wajah...';
+
+      try {
+        const detection = await faceapi.detectSingleFace(
+          video, 
+          new faceapi.TinyFaceDetectorOptions()
+        ).withFaceLandmarks().withFaceDescriptor();
+
+        if (!detection) {
+          alert("Wajah tidak terdeteksi! Pastikan wajah terlihat jelas di dalam kamera.");
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Data Master Wajah';
+          return;
+        }
+
+        const vectorArray = Array.from(detection.descriptor);
+        const vectorWajahStr = JSON.stringify(vectorArray);
+
+        const result = await postToGoogleSheets({
+          action: "simpan_wajah",
+          idAnak: idAnak,
+          namaAnak: namaAnak,
+          vectorWajah: vectorWajahStr
+        });
+
+        if (result.status === 'success') {
+          alert("Sukses! Master Wajah " + namaAnak + " berhasil direkam.");
+          document.getElementById('idAnakWajah').value = '';
+          document.getElementById('namaAnakWajah').value = '';
+          await syncMasterWajah();
+        } else {
+          alert("Gagal: " + result.message);
+        }
+      } catch (err) {
+        alert("Gagal merekam data wajah.");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Data Master Wajah';
+      }
+    }
+
+    async function loadRekap() {
+      const tbody = document.getElementById('rekapTableBody');
+      try {
+        const result = await postToGoogleSheets({ action: "get_rekap" });
+
+        if (result.status === 'success' && result.data.length > 0) {
+          tbody.innerHTML = result.data.map(item => `
+            <tr class="border-b hover:bg-slate-50 text-[11px]">
+              <td class="p-2 font-mono text-slate-500">${item.waktu}</td>
+              <td class="p-2 font-semibold text-slate-700">${item.namaAnak} <span class="text-slate-400">(${item.idAnak})</span></td>
+              <td class="p-2"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-medium border border-emerald-200">${item.jenisSholat}</span></td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Belum ada data presensi.</td></tr>';
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-400">Gagal mengambil rekap data.</td></tr>';
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      const btnP = document.getElementById('tabBtnPresensi');
+      const btnW = document.getElementById('tabBtnWajah');
+      const btnR = document.getElementById('tabBtnRekap');
+      
+      const contentP = document.getElementById('tabContentPresensi');
+      const contentW = document.getElementById('tabContentWajah');
+      const contentR = document.getElementById('tabContentRekap');
+
+      const activeClass = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50";
+      const inactiveClass = "flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600";
+
+      contentP.classList.add('hidden');
+      contentW.classList.add('hidden');
+      contentR.classList.add('hidden');
+
+      btnP.className = inactiveClass;
+      btnW.className = inactiveClass;
+      btnR.className = inactiveClass;
+
+      if (tab === 'presensi') {
+        contentP.classList.remove('hidden');
+        btnP.className = activeClass;
+        startCamera('webcamPresensi').then(() => startAutoPresensiLoop());
+      } else if (tab === 'wajah') {
+        contentW.classList.remove('hidden');
+        btnW.className = activeClass;
+        startCamera('webcamWajah');
+      } else if (tab === 'rekap') {
+        contentR.classList.remove('hidden');
+        btnR.className = activeClass;
+        stopCamera();
+      }
+    }
+
+    window.onload = () => {
+      const savedUser = localStorage.getItem('spensaka_app_user');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        initDashboard();
+      }
+    };
+  </script>
+</body>
+</html>
