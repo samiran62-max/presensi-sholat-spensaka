@@ -2,289 +2,312 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Aplikasi Presensi Sholat Wajah</title>
-  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f5; margin: 0; padding: 15px; text-align: center; }
-    .card { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .tab-menu { display: flex; gap: 10px; margin-bottom: 15px; }
-    .tab-menu button { flex: 1; padding: 10px; font-weight: bold; border: none; background: #e0e0e0; border-radius: 6px; cursor: pointer; }
-    .tab-menu button.active { background: #007bff; color: white; }
-    .video-container { position: relative; width: 100%; max-width: 480px; margin: 10px auto; background: #000; border-radius: 8px; overflow: hidden; min-height: 280px; }
-    video { width: 100%; display: block; }
-    canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-    .form-group { text-align: left; margin: 10px 0; }
-    .form-group label { font-size: 14px; font-weight: bold; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
-    .btn-submit { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    #status { margin-top: 15px; padding: 10px; border-radius: 6px; font-weight: bold; background: #f8f9fa; }
-    .status-success { background: #d4edda !important; color: #155724 !important; }
-    .status-error { background: #f8d7da !important; color: #721c24 !important; }
-    .status-warning { background: #fff3cd !important; color: #856404 !important; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRESENSI SHLAT SPENSAKA - SMP NEGERI 1 KANDAT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-slate-100 min-h-screen text-slate-800">
 
-<div class="card">
-  <div style="text-align: center; margin-bottom: 20px;">
-  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRESVnGGzgEIkf9q6nFxX3TJ2oCPb2g8wWhobdhB6didA&s" alt="Logo SMPN 1 Kandat" style="width: 80px; height: auto; margin-bottom: 10px;">
-  <h2 style="margin: 0; font-size: 1.4rem; color: #333;">PRESENSI SHOLAT SPENSAKA</h2>
-  <h3 style="margin: 4px 0 0 0; font-size: 1rem; color: #666; font-weight: normal;">SMP NEGERI 1 KANDAT</h3>
-</div>
-
-  <div class="tab-menu">
-    <button id="btnPresensi" class="active" onclick="gantiMode('presensi')">Mode Presensi</button>
-    <button id="btnDaftar" onclick="gantiMode('daftar')">Perekaman Wajah</button>
-  </div>
-
-  <div class="video-container" id="videoContainer">
-    <video id="video" autoplay muted playsinline></video>
-  </div>
-
-  <div id="panelPresensi">
-    <div class="form-group">
-      <label for="jenisSholat">Pilih Kegiatan / Sholat:</label>
-      <select id="jenisSholat">
-        <option value="Subuh">Subuh</option>
-        <option value="Dhuha">Dhuha</option>
-        <option value="Dzuhur">Dzuhur</option>
-        <option value="Jum'atan">Jum'atan</option>
-        <option value="Ashar">Ashar</option>
-        <option value="Maghrib" selected>Maghrib</option>
-        <option value="Isya">Isya</option>
-        <option value="Istighozah">Istighozah</option>
-        <option value="Idul Adha">Idul Adha</option>
-      </select>
+  <!-- HEADER UTAMA -->
+  <header class="bg-emerald-700 text-white p-4 shadow-md">
+    <div class="max-w-md mx-auto flex items-center justify-center space-x-3 text-center">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRESVnGGzgEIkf9q6nFxX3TJ2oCPb2g8wWhobdhB6didA&s" 
+           alt="Logo Sekolah" class="w-12 h-12 rounded-full bg-white p-1 object-contain shadow">
+      <div class="text-left">
+        <h1 class="font-bold text-base leading-tight">PRESENSI SHOLAT SPENSAKA</h1>
+        <p class="text-xs text-emerald-200">SMP NEGERI 1 KANDAT</p>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <div id="panelDaftar" style="display:none;">
-    <div class="form-group">
-      <label for="regId">ID Anak:</label>
-      <input type="text" id="regId" placeholder="Contoh: A001">
+  <!-- CONTAINER UTAMA -->
+  <main class="max-w-md mx-auto p-4">
+
+    <!-- 1. HALAMAN LOGIN -->
+    <div id="loginView" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
+      <div class="text-center space-y-1">
+        <h2 class="text-lg font-bold text-emerald-800">Masuk Akun Presensi</h2>
+        <p class="text-xs text-slate-500">Gunakan ID Anak / NISN dan Password Anda</p>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ID Anak / NISN</label>
+          <input type="text" id="loginUsername" required placeholder="Contoh: a1" 
+                 class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" 
+                 class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm outline-none">
+        </div>
+        <button type="submit" id="btnLogin" 
+                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg text-sm transition">
+          <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk Sekarang
+        </button>
+      </form>
     </div>
-    <div class="form-group">
-      <label for="regNama">Nama Anak:</label>
-      <input type="text" id="regNama" placeholder="Contoh: Ahmad">
+
+    <!-- 2. DASHBOARD SETELAH LOGIN -->
+    <div id="dashboardView" class="hidden space-y-4">
+      
+      <!-- NAVIGASI USER -->
+      <div class="bg-white p-3.5 rounded-xl border flex items-center justify-between text-xs shadow-sm">
+        <div>
+          <p class="text-slate-400">Pengguna Login:</p>
+          <p id="userNameLabel" class="font-bold text-emerald-800 text-sm">-</p>
+          <span id="userRoleBadge" class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-semibold">Siswa</span>
+        </div>
+        <button onclick="handleLogout()" class="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg font-semibold border border-red-200">
+          <i class="fa-solid fa-power-off mr-1"></i> Keluar
+        </button>
+      </div>
+
+      <!-- NAVIGASI TAB -->
+      <div class="flex border-b border-slate-200 bg-white rounded-t-xl overflow-hidden border">
+        <button id="tabBtnPresensi" onclick="switchTab('presensi')" 
+                class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50">
+          <i class="fa-solid fa-camera mr-1"></i> Presensi Sholat
+        </button>
+        <button id="tabBtnRekap" onclick="switchTab('rekap')" 
+                class="flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600">
+          <i class="fa-solid fa-list-check mr-1"></i> Rekap Presensi
+        </button>
+      </div>
+
+      <!-- CONTENT TAB 1: KAMERA PRESENSI -->
+      <div id="tabContentPresensi" class="bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kegiatan / Sholat</label>
+          <select id="jenisSholat" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <option value="Maghrib">Maghrib</option>
+            <option value="Isya">Isya</option>
+            <option value="Subuh">Subuh</option>
+            <option value="Dhuha">Dhuha</option>
+            <option value="Dzuhur">Dzuhur</option>
+            <option value="Ashar">Ashar</option>
+            <option value="Jumat">Jumat</option>
+            <option value="Istighozah">Istighozah</option>
+          </select>
+        </div>
+
+        <!-- CAMERA TAMPILAN -->
+        <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center border">
+          <video id="webcam" autoplay playsinline class="w-full h-full object-cover"></video>
+          <div class="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded text-[10px]" id="cameraStatus">
+            Kamera Aktif
+          </div>
+        </div>
+
+        <button onclick="submitPresensi()" id="btnSubmitPresensi" 
+                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl text-sm transition">
+          <i class="fa-solid fa-check-circle mr-1.5"></i> Simpan Presensi Sholat
+        </button>
+      </div>
+
+      <!-- CONTENT TAB 2: REKAP PRESENSI -->
+      <div id="tabContentRekap" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-3 shadow-sm">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm text-slate-700">Riwayat Presensi</h3>
+          <button onclick="loadRekap()" class="text-xs text-emerald-600 hover:underline font-semibold">
+            <i class="fa-solid fa-rotate mr-1"></i> Refresh
+          </button>
+        </div>
+
+        <!-- TABEL DATA -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 border-b">
+                <th class="p-2">Waktu</th>
+                <th class="p-2">ID & Nama</th>
+                <th class="p-2">Sholat</th>
+              </tr>
+            </thead>
+            <tbody id="rekapTableBody">
+              <tr>
+                <td colspan="3" class="p-4 text-center text-slate-400">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
-    <button class="btn-submit" onclick="rekamWajah()">Rekam Wajah Anak</button>
-  </div>
 
-  <div id="status">Mengunduh Model AI Pemindai...</div>
-</div>
+  </main>
 
-<script>
-  // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyspwEcsUFbIS9jq_2xL_XLo-0_fCExHy9Q86Ws8pWBs4Jp20HacC8ufwADhXCi4y1Z/exec";
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyspwEcsUFbIS9jq_2xL_XLo-0_fCExHy9Q86Ws8pWBs4Jp20HacC8ufwADhXCi4y1Z/exec";
 
-  const video = document.getElementById('video');
-  const statusDiv = document.getElementById('status');
-  let modeAktif = 'presensi';
-  let faceMatcher = null;
-  let cooldownMap = {};
-  let isProcessing = false;
+    let currentUser = null;
+    let videoStream = null;
 
-  function gantiMode(mode) {
-    modeAktif = mode;
-    document.getElementById('btnPresensi').className = mode === 'presensi' ? 'active' : '';
-    document.getElementById('btnDaftar').className = mode === 'daftar' ? 'active' : '';
-    document.getElementById('panelPresensi').style.display = mode === 'presensi' ? 'block' : 'none';
-    document.getElementById('panelDaftar').style.display = mode === 'daftar' ? 'block' : 'none';
-
-    if (mode === 'presensi') {
-      muatDataMasterWajah();
-    } else {
-      tampilkanStatus("Posisikan wajah anak di depan kamera, isi ID & Nama, lalu klik Rekam.", "");
-    }
-  }
-
-  function tampilkanStatus(pesan, jenis) {
-    statusDiv.innerText = pesan;
-    if (jenis === "success") statusDiv.className = "status-success";
-    else if (jenis === "error") statusDiv.className = "status-error";
-    else if (jenis === "warning") statusDiv.className = "status-warning";
-    else statusDiv.className = "";
-  }
-
-  async function kirimKeGAS(data) {
-    const response = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify(data)
-    });
-    return await response.json();
-  }
-
-  async function muatDataMasterWajah() {
-    tampilkanStatus("Mengambil data terdaftar dari spreadsheet...", "");
-    try {
-      const data = await kirimKeGAS({ action: "ambilMasterWajah" });
-      if (!data || data.length === 0) {
-        tampilkanStatus("Belum ada data anak terdaftar. Beralihlah ke tab 'Perekaman Wajah'.", "error");
-        faceMatcher = null;
-        return;
-      }
-
-      const labeledDescriptors = data.map(item => {
-        const descriptorArray = new Float32Array(JSON.parse(item.descriptor));
-        return new faceapi.LabeledFaceDescriptors(`${item.id}|${item.nama}`, [descriptorArray]);
+    // FUNGSI KHUSUS PENGIRIMAN DATA BEBAS ERROR CORS
+    async function postToGoogleSheets(payload) {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload)
       });
-
-      faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
-      tampilkanStatus("Sistem Siap! Silakan berdiri di depan kamera.", "success");
-    } catch (e) {
-      tampilkanStatus("Gagal mengambil data dari Google Sheets: " + e.message, "error");
-    }
-  }
-
-  async function rekamWajah() {
-    const id = document.getElementById('regId').value.trim();
-    const nama = document.getElementById('regNama').value.trim();
-
-    if (!id || !nama) {
-      alert("ID dan Nama Anak wajib diisi!");
-      return;
+      return await response.json();
     }
 
-    tampilkanStatus("Mendeteksi wajah...", "");
+    // PROSES LOGIN
+    async function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('btnLogin');
 
-    const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 }))
-      .withFaceLandmarks()
-      .withFaceDescriptor();
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Memeriksa...';
 
-    if (!detection) {
-      tampilkanStatus("Wajah tidak terdeteksi! Pastikan cahaya terang dan wajah menghadap kamera.", "error");
-      return;
-    }
-
-    tampilkanStatus("Menyimpan ke spreadsheet...", "");
-    const descriptorArray = Array.from(detection.descriptor);
-    const descriptorJson = JSON.stringify(descriptorArray);
-
-    try {
-      const res = await kirimKeGAS({
-        action: "simpanMasterWajah",
-        idAnak: id,
-        namaAnak: nama,
-        descriptorJson: descriptorJson
-      });
-
-      if (res.status === "success") {
-        tampilkanStatus(res.message, "success");
-        document.getElementById('regId').value = "";
-        document.getElementById('regNama').value = "";
-      } else {
-        tampilkanStatus(res.message, "error");
-      }
-    } catch (e) {
-      tampilkanStatus("Gagal menyimpan: " + e.message, "error");
-    }
-  }
-
-  async function init() {
-    try {
-      const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-      await Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-      ]);
-
-      tampilkanStatus("Menyiapkan Kamera...", "");
-
-      // KODE PERBAIKAN: Menggunakan ideal: "environment" dengan fallback aman
-      let stream;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: { ideal: "environment" } } 
-        });
-      } catch (errKameraBelakang) {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      }
+        const result = await postToGoogleSheets({ action: "login", username, password });
 
-      video.srcObject = stream;
-
-      video.onloadedmetadata = () => {
-        muatDataMasterWajah();
-        mulaiPemindaianLoop();
-      };
-    } catch (err) {
-      tampilkanStatus("Gagal Membuka Kamera: " + err.message, "error");
-    }
-  }
-
-  function mulaiPemindaianLoop() {
-    const container = document.getElementById('videoContainer');
-    let canvas = document.querySelector('canvas');
-    if (!canvas) {
-      canvas = faceapi.createCanvasFromMedia(video);
-      container.append(canvas);
-    }
-
-    setInterval(async () => {
-      if (isProcessing) return;
-      isProcessing = true;
-
-      const displaySize = { width: video.clientWidth || 480, height: video.clientHeight || 360 };
-      faceapi.matchDimensions(canvas, displaySize);
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (modeAktif === 'presensi' && faceMatcher) {
-        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 }))
-          .withFaceLandmarks()
-          .withFaceDescriptors();
-
-        if (detections.length > 0) {
-          const resizedDetections = faceapi.resizeResults(detections, displaySize);
-
-          resizedDetections.forEach(detection => {
-            const match = faceMatcher.findBestMatch(detection.descriptor);
-            const box = detection.detection.box;
-
-            const drawBox = new faceapi.draw.DrawBox(box, { label: match.toString() });
-            drawBox.draw(canvas);
-
-            if (match.label !== 'unknown') {
-              const [idAnak, namaAnak] = match.label.split('|');
-              prosesCatatPresensi(idAnak, namaAnak);
-            } else {
-              tampilkanStatus("Wajah terdeteksi, tetapi belum terdaftar (Unknown).", "warning");
-            }
-          });
+        if (result.status === 'success') {
+          currentUser = result.user;
+          localStorage.setItem('spensaka_user', JSON.stringify(currentUser));
+          initDashboard();
+        } else {
+          alert(result.message);
         }
+      } catch (err) {
+        alert("Gagal terhubung ke Google Sheets. Pastikan URL Apps Script sudah benar & Pengaturan Akses diatur ke 'Siapa Saja' (Anyone).");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk Sekarang';
       }
-      isProcessing = false;
-    }, 250);
-  }
-
-  async function prosesCatatPresensi(idAnak, namaAnak) {
-    const now = Date.now();
-    if (cooldownMap[idAnak] && (now - cooldownMap[idAnak] < 15000)) return;
-
-    cooldownMap[idAnak] = now;
-    const jenisSholat = document.getElementById('jenisSholat').value;
-
-    tampilkanStatus(`Mencatat data presensi: ${namaAnak}...`, "");
-
-    try {
-      const res = await kirimKeGAS({
-        action: "simpanPresensi",
-        idAnak: idAnak,
-        namaAnak: namaAnak,
-        jenisSholat: jenisSholat
-      });
-
-      if(res.status === "success") {
-        tampilkanStatus(`BERHASIL! ${namaAnak} tercatat (${jenisSholat}).`, "success");
-      }
-    } catch (e) {
-      console.error(e);
     }
-  }
 
-  window.onload = init;
-</script>
+    function initDashboard() {
+      document.getElementById('loginView').classList.add('hidden');
+      document.getElementById('dashboardView').classList.remove('hidden');
+      document.getElementById('userNameLabel').innerText = currentUser.nama + " (" + currentUser.username + ")";
+      document.getElementById('userRoleBadge').innerText = currentUser.role;
 
+      startCamera();
+      loadRekap();
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('spensaka_user');
+      currentUser = null;
+      stopCamera();
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('loginView').classList.remove('hidden');
+    }
+
+    // KAMERA
+    async function startCamera() {
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "user" } }
+        });
+        document.getElementById('webcam').srcObject = videoStream;
+      } catch (err) {
+        document.getElementById('cameraStatus').innerText = "Kamera Tidak Aktif/Tidak Diizinkan";
+      }
+    }
+
+    function stopCamera() {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+    }
+
+    // SIMPAN PRESENSI
+    async function submitPresensi() {
+      if (!currentUser) return;
+
+      const jenisSholat = document.getElementById('jenisSholat').value;
+      const btn = document.getElementById('btnSubmitPresensi');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...';
+
+      try {
+        const result = await postToGoogleSheets({
+          action: "simpan_presensi",
+          user: currentUser,
+          jenisSholat: jenisSholat
+        });
+
+        if (result.status === 'success') {
+          alert("Alhamdulillah, " + result.message);
+          loadRekap();
+          switchTab('rekap');
+        } else {
+          alert("Gagal: " + result.message);
+        }
+      } catch (err) {
+        alert("Gagal menyimpan presensi.");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-circle mr-1.5"></i> Simpan Presensi Sholat';
+      }
+    }
+
+    // AMBIL REKAP PRESENSI
+    async function loadRekap() {
+      if (!currentUser) return;
+      const tbody = document.getElementById('rekapTableBody');
+      tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data...</td></tr>';
+
+      try {
+        const result = await postToGoogleSheets({ action: "get_rekap", user: currentUser });
+
+        if (result.status === 'success' && result.data.length > 0) {
+          tbody.innerHTML = result.data.map(item => `
+            <tr class="border-b hover:bg-slate-50 text-[11px]">
+              <td class="p-2 font-mono text-slate-500">${item.waktu}</td>
+              <td class="p-2 font-semibold text-slate-700">${item.nama} <span class="text-slate-400">(${item.username})</span></td>
+              <td class="p-2"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-medium border border-emerald-200">${item.jenisSholat}</span></td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Belum ada riwayat presensi.</td></tr>';
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-400">Gagal mengambil data rekap.</td></tr>';
+      }
+    }
+
+    // NAVIGASI TAB
+    function switchTab(tab) {
+      const btnP = document.getElementById('tabBtnPresensi');
+      const btnR = document.getElementById('tabBtnRekap');
+      const contentP = document.getElementById('tabContentPresensi');
+      const contentR = document.getElementById('tabContentRekap');
+
+      if (tab === 'presensi') {
+        contentP.classList.remove('hidden');
+        contentR.classList.add('hidden');
+        btnP.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50";
+        btnR.className = "flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600";
+      } else {
+        contentP.classList.add('hidden');
+        contentR.classList.remove('hidden');
+        btnR.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50";
+        btnP.className = "flex-1 py-2.5 text-center text-xs font-bold text-slate-500 hover:text-emerald-600";
+      }
+    }
+
+    // AUTO LOGIN JIKA SUDAH PERNAH LOGIN
+    window.onload = () => {
+      const savedUser = localStorage.getItem('spensaka_user');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        initDashboard();
+      }
+    };
+  </script>
 </body>
 </html>
