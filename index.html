@@ -49,7 +49,6 @@
         background-color: transparent !important;
       }
       @page {
-        /* Pengaturan Khusus Ukuran Kertas F4 / Folio Landscape */
         size: 330mm 215mm;
         margin: 6mm;
       }
@@ -217,17 +216,20 @@
         </button>
       </div>
 
-      <!-- TAB 3: REKAP PRESENSI (DENGAN MENU CETAK / EXPORT PDF F4 LANDSCAPE) -->
+      <!-- TAB 3: REKAP PRESENSI -->
       <div id="tabContentRekap" class="hidden bg-white p-4 rounded-xl border space-y-4 shadow-sm">
         
         <!-- HEADER MODE REKAP + TOMBOL CETAK F4 -->
         <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-xl flex items-center justify-between gap-2 no-print">
-          <div class="flex-1 flex gap-2">
+          <div class="flex-1 flex gap-1.5">
             <button id="btnModeList" onclick="switchRekapMode('list')" class="flex-1 py-2 rounded-lg font-bold text-xs bg-emerald-600 text-white shadow transition text-center">
               <i class="fa-solid fa-list mr-1"></i> 1. Log Harian
             </button>
             <button id="btnModeMatrix" onclick="switchRekapMode('matrix')" class="flex-1 py-2 rounded-lg font-bold text-xs text-slate-700 hover:bg-emerald-100 transition text-center">
-              <i class="fa-solid fa-table-cells mr-1"></i> 2. Matrix Bulanan (1–31)
+              <i class="fa-solid fa-table-cells mr-1"></i> 2. Matrix (1–31)
+            </button>
+            <button id="btnModeSummary" onclick="switchRekapMode('summary')" class="flex-1 py-2 rounded-lg font-bold text-xs text-slate-700 hover:bg-emerald-100 transition text-center">
+              <i class="fa-solid fa-user-xmark mr-1"></i> 3. Ringkasan Tidak Sholat
             </button>
           </div>
           <button onclick="cetakRekap()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow flex items-center shrink-0">
@@ -366,8 +368,95 @@
               </table>
             </div>
 
+            <div class="text-[10px] text-slate-600 pt-1 flex flex-wrap gap-3 no-print">
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-100 border border-emerald-300 inline-block"></span> <b>Sholat</b> (Hadir)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-rose-100 border border-rose-300 inline-block"></span> <b>Haid</b> (Berhalangan)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-red-100 border border-red-300 inline-block"></span> <b class="text-red-700">Tidak</b> (Tidak Sholat saat ada jadwal)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-100 border inline-block"></span> <b>-</b> (Tidak Ada Jadwal / Libur)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODE 3: RINGKASAN REKAP TIDAK SHOLAT / ALPHA -->
+        <div id="viewRekapSummary" class="hidden space-y-3">
+          <div class="bg-slate-50 p-3 rounded-xl border space-y-2 no-print">
+            <div class="font-bold text-xs text-slate-700"><i class="fa-solid fa-filter mr-1"></i> Filter Ringkasan Tidak Sholat</div>
+            <div class="grid grid-cols-4 gap-2 text-xs">
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Bulan</label>
+                <select id="summaryBulan" onchange="renderRingkasanTidakSholat()" class="w-full px-2 py-1 border rounded bg-white outline-none font-semibold">
+                  <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                  <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                  <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                  <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Tahun</label>
+                <select id="summaryTahun" onchange="renderRingkasanTidakSholat()" class="w-full px-2 py-1 border rounded bg-white outline-none font-semibold">
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Kelas</label>
+                <select id="summaryKelas" onchange="renderRingkasanTidakSholat()" class="w-full px-2 py-1 border rounded bg-white outline-none font-semibold">
+                  <option value="ALL">Semua Kelas</option>
+                  <option value="7A">7A</option><option value="7B">7B</option><option value="7C">7C</option><option value="7D">7D</option><option value="7E">7E</option><option value="7F">7F</option>
+                  <option value="8A">8A</option><option value="8B">8B</option><option value="8C">8C</option><option value="8D">8D</option><option value="8E">8E</option><option value="8F">8F</option>
+                  <option value="9A">9A</option><option value="9B">9B</option><option value="9C">9C</option><option value="9D">9D</option><option value="9E">9E</option><option value="9F">9F</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Jenis Sholat</label>
+                <select id="summarySholat" onchange="renderRingkasanTidakSholat()" class="w-full px-2 py-1 border rounded bg-white outline-none font-semibold">
+                  <option value="Dzuhur">Dzuhur</option>
+                  <option value="Dhuha">Dhuha</option>
+                  <option value="Jumat">Jumat</option>
+                  <option value="Istighosah">Istighosah</option>
+                  <option value="Maulid Nabi">Maulid Nabi</option>
+                  <option value="Idul Adha">Idul Adha</option>
+                  <option value="Haid">Haid</option>
+                  <option value="ALL">Semua Jenis Sholat</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="border rounded-xl bg-white p-3 space-y-2 shadow-sm overflow-hidden">
+            <div class="text-xs space-y-0.5 font-bold text-slate-700 border-b pb-2 flex justify-between items-center">
+              <div>
+                <p>Bulan: <span id="labelSummaryBulan" class="text-emerald-700 font-extrabold">-</span></p>
+                <p>Jenis: <span id="labelSummaryJenis" class="text-emerald-700 font-extrabold">-</span></p>
+              </div>
+              <div id="summaryTotalSiswa" class="font-bold text-slate-700 text-[11px]">Total: 0 Siswa</div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-700 border-b">
+                    <th class="p-2 text-center">No</th>
+                    <th class="p-2 text-center">NIS</th>
+                    <th class="p-2">Nama Siswa</th>
+                    <th class="p-2 text-center">L/P</th>
+                    <th class="p-2 text-center">Kelas</th>
+                    <th class="p-2 text-center">Hari Sholat</th>
+                    <th class="p-2 text-center">Hadir Sholat</th>
+                    <th class="p-2 text-center">Haid</th>
+                    <th class="p-2 text-center text-red-600 font-bold">Tidak Sholat</th>
+                    <th class="p-2">Tanggal Tidak Sholat</th>
+                  </tr>
+                </thead>
+                <tbody id="summaryTableBody">
+                  <tr><td colspan="10" class="p-4 text-center text-slate-400">Memuat ringkasan...</td></tr>
+                </tbody>
+              </table>
+            </div>
+
             <div class="text-[10px] text-slate-500 pt-1 no-print">
-              <span><i class="fa-solid fa-circle-info mr-1"></i> Tanda <b>-</b> : Tidak Sholat Berjamaah / Belum Presensi</span>
+              <span><i class="fa-solid fa-circle-info mr-1"></i> Tanggal Tidak Sholat dihitung otomatis apabila pada tanggal tersebut mayoritas siswa di kelas terekam Sholat/Haid.</span>
             </div>
           </div>
         </div>
@@ -534,8 +623,16 @@
       applyRolePermissions();
 
       const now = new Date();
-      document.getElementById('matrixBulan').value = (now.getMonth() + 1).toString();
-      document.getElementById('matrixTahun').value = now.getFullYear().toString();
+      const currentMonthStr = (now.getMonth() + 1).toString();
+      const currentYearStr = now.getFullYear().toString();
+
+      document.getElementById('matrixBulan').value = currentMonthStr;
+      document.getElementById('matrixTahun').value = currentYearStr;
+      
+      if (document.getElementById('summaryBulan')) {
+        document.getElementById('summaryBulan').value = currentMonthStr;
+        document.getElementById('summaryTahun').value = currentYearStr;
+      }
 
       if (!isModelsLoaded) await loadModels();
       await syncMasterWajah();
@@ -821,8 +918,10 @@
           rawRekapData = result.data;
           if (currentRekapMode === 'list') {
             renderFilteredRekap();
-          } else {
+          } else if (currentRekapMode === 'matrix') {
             renderMatrixBulanan();
+          } else if (currentRekapMode === 'summary') {
+            renderRingkasanTidakSholat();
           }
         } else {
           tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada data presensi.</td></tr>';
@@ -836,21 +935,35 @@
       currentRekapMode = mode;
       const btnList = document.getElementById('btnModeList');
       const btnMatrix = document.getElementById('btnModeMatrix');
+      const btnSummary = document.getElementById('btnModeSummary');
+
       const viewList = document.getElementById('viewRekapList');
       const viewMatrix = document.getElementById('viewRekapMatrix');
+      const viewSummary = document.getElementById('viewRekapSummary');
+
+      const activeClass = "flex-1 py-2 rounded-lg font-bold text-xs bg-emerald-600 text-white shadow transition text-center";
+      const inactiveClass = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-700 hover:bg-emerald-100 transition text-center";
+
+      btnList.className = inactiveClass;
+      btnMatrix.className = inactiveClass;
+      btnSummary.className = inactiveClass;
+
+      viewList.classList.add('hidden');
+      viewMatrix.classList.add('hidden');
+      viewSummary.classList.add('hidden');
 
       if (mode === 'list') {
-        btnList.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-emerald-600 text-white shadow transition text-center";
-        btnMatrix.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-700 hover:bg-emerald-100 transition text-center";
+        btnList.className = activeClass;
         viewList.classList.remove('hidden');
-        viewMatrix.classList.add('hidden');
         renderFilteredRekap();
-      } else {
-        btnMatrix.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-emerald-600 text-white shadow transition text-center";
-        btnList.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-700 hover:bg-emerald-100 transition text-center";
+      } else if (mode === 'matrix') {
+        btnMatrix.className = activeClass;
         viewMatrix.classList.remove('hidden');
-        viewList.classList.add('hidden');
         renderMatrixBulanan();
+      } else if (mode === 'summary') {
+        btnSummary.className = activeClass;
+        viewSummary.classList.remove('hidden');
+        renderRingkasanTidakSholat();
       }
     }
 
@@ -950,6 +1063,36 @@
         }
       });
 
+      // Deteksi Hari Kegiatan Sholat per Kelas
+      const classPrayerDays = {};
+      const allClassNames = [...new Set(allSiswaList.map(s => (s.kelas || '').toString().trim().toUpperCase()))];
+
+      allClassNames.forEach(kName => {
+        if (!kName) return;
+        classPrayerDays[kName] = {};
+        const classStudentsCount = allSiswaList.filter(s => (s.kelas || '').toString().trim().toUpperCase() === kName).length || 1;
+
+        for (let h = 1; h <= totalHariBulan; h++) {
+          const setAttended = new Set();
+          rawRekapData.forEach(item => {
+            if (!item.waktu) return;
+            const dateStr = item.waktu.toString().split(' ')[0];
+            const parts = dateStr.split('-');
+            if (parts.length < 3) return;
+            if (parseInt(parts[0], 10) === tahunInt && parseInt(parts[1], 10) === bulanInt && parseInt(parts[2], 10) === h) {
+              if ((item.kelas || '').toString().trim().toUpperCase() === kName) {
+                const itemSholat = (item.jenisSholat || '').toString().trim();
+                if (selectedSholat === 'ALL' || itemSholat === selectedSholat || itemSholat === 'Haid') {
+                  if (item.idAnak) setAttended.add(item.idAnak.toString().trim());
+                }
+              }
+            }
+          });
+          const minThreshold = Math.max(2, Math.ceil(classStudentsCount * 0.25));
+          classPrayerDays[kName][h] = setAttended.size >= minThreshold;
+        }
+      });
+
       const headerThead = document.getElementById('matrixHeader');
       let thHTML = `<tr class="border-b border-slate-300">
         <th class="p-1.5 border-r min-w-[30px]">No</th>
@@ -974,6 +1117,7 @@
       let bodyHTML = '';
       targetSiswa.forEach((s, idx) => {
         const sId = s.idAnak ? s.idAnak.toString().trim() : '';
+        const sKelas = (s.kelas || '').toString().trim().toUpperCase();
 
         bodyHTML += `<tr class="border-b hover:bg-slate-50 border-slate-200">
           <td class="p-1 border-r font-mono text-center">${s.no || (idx + 1)}</td>
@@ -985,14 +1129,13 @@
 
         for (let h = 1; h <= totalHariBulan; h++) {
           let val = '-';
+          let bgClass = 'text-slate-400';
           const dayData = (presensiMap[sId] && presensiMap[sId][h]) ? presensiMap[sId][h] : null;
 
           if (dayData) {
             if (selectedSholat === 'ALL') {
               const keys = Object.keys(dayData);
-              if (keys.length > 0) {
-                val = keys.join(', ');
-              }
+              if (keys.length > 0) val = keys.join(', ');
             } else {
               if (dayData[selectedSholat]) {
                 val = selectedSholat;
@@ -1002,11 +1145,21 @@
             }
           }
 
-          let bgClass = 'text-slate-400';
-          if (val === 'Haid') {
-            bgClass = 'bg-rose-100 text-rose-800 font-bold';
-          } else if (val !== '-') {
-            bgClass = 'bg-emerald-100 text-emerald-800 font-bold';
+          if (val !== '-') {
+            if (val === 'Haid') {
+              bgClass = 'bg-rose-100 text-rose-800 font-bold';
+            } else {
+              bgClass = 'bg-emerald-100 text-emerald-800 font-bold';
+            }
+          } else {
+            const isPrayerDay = classPrayerDays[sKelas] && classPrayerDays[sKelas][h];
+            if (isPrayerDay) {
+              val = 'Tidak';
+              bgClass = 'bg-red-100 text-red-700 font-bold';
+            } else {
+              val = '-';
+              bgClass = 'text-slate-300';
+            }
           }
 
           bodyHTML += `<td class="p-1 border-r text-[9px] text-center ${bgClass}">${val}</td>`;
@@ -1016,6 +1169,153 @@
       });
 
       bodyTbody.innerHTML = bodyHTML;
+    }
+
+    function renderRingkasanTidakSholat() {
+      const bulanInt = parseInt(document.getElementById('summaryBulan').value);
+      const tahunInt = parseInt(document.getElementById('summaryTahun').value);
+      const selectedKelas = document.getElementById('summaryKelas').value;
+      const selectedSholat = document.getElementById('summarySholat').value;
+
+      document.getElementById('labelSummaryBulan').innerText = `${namaBulanMap[bulanInt]} ${tahunInt}`;
+      document.getElementById('labelSummaryJenis').innerText = selectedSholat === 'ALL' ? 'Semua Sholat' : selectedSholat;
+
+      const totalHariBulan = new Date(tahunInt, bulanInt, 0).getDate();
+
+      let targetSiswa = allSiswaList;
+      if (selectedKelas !== 'ALL') {
+        targetSiswa = allSiswaList.filter(s => (s.kelas || '').toString().trim().toUpperCase() === selectedKelas.trim().toUpperCase());
+      }
+
+      const presensiMap = {};
+      rawRekapData.forEach(item => {
+        if (!item.waktu) return;
+        const dateStr = item.waktu.toString().split(' ')[0];
+        const parts = dateStr.split('-');
+        if (parts.length < 3) return;
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        const d = parseInt(parts[2], 10);
+
+        if (y === tahunInt && m === bulanInt) {
+          const studentId = item.idAnak ? item.idAnak.toString().trim() : '';
+          if (!studentId) return;
+          if (!presensiMap[studentId]) presensiMap[studentId] = {};
+          if (!presensiMap[studentId][d]) presensiMap[studentId][d] = {};
+          const sholatName = item.jenisSholat ? item.jenisSholat.toString().trim() : '';
+          presensiMap[studentId][d][sholatName] = sholatName;
+        }
+      });
+
+      const classPrayerDays = {};
+      const allClassNames = [...new Set(allSiswaList.map(s => (s.kelas || '').toString().trim().toUpperCase()))];
+
+      allClassNames.forEach(kName => {
+        if (!kName) return;
+        classPrayerDays[kName] = {};
+        const classStudentsCount = allSiswaList.filter(s => (s.kelas || '').toString().trim().toUpperCase() === kName).length || 1;
+
+        for (let h = 1; h <= totalHariBulan; h++) {
+          const setAttended = new Set();
+          rawRekapData.forEach(item => {
+            if (!item.waktu) return;
+            const dateStr = item.waktu.toString().split(' ')[0];
+            const parts = dateStr.split('-');
+            if (parts.length < 3) return;
+            if (parseInt(parts[0], 10) === tahunInt && parseInt(parts[1], 10) === bulanInt && parseInt(parts[2], 10) === h) {
+              if ((item.kelas || '').toString().trim().toUpperCase() === kName) {
+                const itemSholat = (item.jenisSholat || '').toString().trim();
+                if (selectedSholat === 'ALL' || itemSholat === selectedSholat || itemSholat === 'Haid') {
+                  if (item.idAnak) setAttended.add(item.idAnak.toString().trim());
+                }
+              }
+            }
+          });
+          const minThreshold = Math.max(2, Math.ceil(classStudentsCount * 0.25));
+          classPrayerDays[kName][h] = setAttended.size >= minThreshold;
+        }
+      });
+
+      const summaryList = targetSiswa.map((s, idx) => {
+        const sId = s.idAnak ? s.idAnak.toString().trim() : '';
+        const sKelas = (s.kelas || '').toString().trim().toUpperCase();
+
+        let countHariSholat = 0;
+        let countHadirSholat = 0;
+        let countHaid = 0;
+        let countTidakSholat = 0;
+        const tanggalTidak = [];
+
+        for (let h = 1; h <= totalHariBulan; h++) {
+          const isPrayerDay = classPrayerDays[sKelas] && classPrayerDays[sKelas][h];
+          const dayData = (presensiMap[sId] && presensiMap[sId][h]) ? presensiMap[sId][h] : null;
+
+          if (isPrayerDay) countHariSholat++;
+
+          let hasSholat = false;
+          let hasHaid = false;
+
+          if (dayData) {
+            if (selectedSholat === 'ALL') {
+              if (dayData['Haid']) hasHaid = true;
+              const otherKeys = Object.keys(dayData).filter(k => k !== 'Haid');
+              if (otherKeys.length > 0) hasSholat = true;
+            } else {
+              if (dayData[selectedSholat]) hasSholat = true;
+              if (dayData['Haid']) hasHaid = true;
+            }
+          }
+
+          if (hasSholat) countHadirSholat++;
+          if (hasHaid) countHaid++;
+
+          if (isPrayerDay && !hasSholat && !hasHaid) {
+            countTidakSholat++;
+            tanggalTidak.push(h);
+          }
+        }
+
+        return {
+          no: s.no || (idx + 1),
+          idAnak: sId,
+          nisn: s.nisn || '-',
+          namaAnak: s.namaAnak,
+          lp: s.lp || '-',
+          kelas: s.kelas,
+          countHariSholat,
+          countHadirSholat,
+          countHaid,
+          countTidakSholat,
+          tanggalTidak
+        };
+      });
+
+      summaryList.sort((a, b) => b.countTidakSholat - a.countTidakSholat);
+
+      const tbody = document.getElementById('summaryTableBody');
+      document.getElementById('summaryTotalSiswa').innerText = `Total: ${summaryList.length} Siswa`;
+
+      if (summaryList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-slate-400">Tidak ada data.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = summaryList.map((item, idx) => `
+        <tr class="border-b hover:bg-slate-50 text-[11px]">
+          <td class="p-2 text-center font-mono">${idx + 1}</td>
+          <td class="p-2 text-center font-mono font-semibold">${item.idAnak}</td>
+          <td class="p-2 font-semibold text-slate-800">${item.namaAnak}</td>
+          <td class="p-2 text-center">${item.lp}</td>
+          <td class="p-2 text-center font-bold text-slate-600">${item.kelas}</td>
+          <td class="p-2 text-center font-bold text-blue-700">${item.countHariSholat}</td>
+          <td class="p-2 text-center font-bold text-emerald-700">${item.countHadirSholat}</td>
+          <td class="p-2 text-center font-bold text-rose-700">${item.countHaid}</td>
+          <td class="p-2 text-center font-extrabold ${item.countTidakSholat > 0 ? 'text-red-600 bg-red-50' : 'text-slate-400'}">${item.countTidakSholat}</td>
+          <td class="p-2 text-left text-[10px] text-slate-600 max-w-[200px]" title="${item.tanggalTidak.join(', ')}">
+            ${item.tanggalTidak.length > 0 ? item.tanggalTidak.map(t => `<span class="inline-block bg-red-100 text-red-800 px-1 py-0.2 rounded font-mono mr-0.5 mb-0.5">${t}</span>`).join('') : '<span class="text-emerald-600 font-semibold">Nihil / Selalu Hadir</span>'}
+          </td>
+        </tr>
+      `).join('');
     }
 
     function setTodayFilter() {
