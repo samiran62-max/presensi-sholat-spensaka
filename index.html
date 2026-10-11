@@ -93,14 +93,14 @@
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kegiatan / Sholat:</label>
           <select id="jenisSholat" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <option value="Maghrib">Maghrib</option>
+            <option value="Isya">Isya</option>
+            <option value="Subuh">Subuh</option>
             <option value="Dhuha">Dhuha</option>
             <option value="Dzuhur">Dzuhur</option>
+            <option value="Ashar">Ashar</option>
             <option value="Jumat">Jumat</option>
             <option value="Istighozah">Istighozah</option>
-            <option value="Idul Adha">Idul Adha</option>
-            <option value="Haid">Haid</option>
-            <option value="Maulid Nabi">Maulid Nabi</option>
-            <option value="Lainnya">Lainnya</option>
           </select>
         </div>
 
@@ -120,7 +120,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: REKAM WAJAH SISWA -->
+      <!-- TAB 2: REKAM WAJAH (DROPDOWN KELAS & NIS -> NAMA OTOMATIS) -->
       <div id="tabContentWajah" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-lg text-xs">
           <i class="fa-solid fa-user-plus mr-1"></i> Form Pendaftaran Master Wajah Siswa
@@ -129,7 +129,7 @@
         <div class="space-y-3">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">1. Pilih Kelas Siswa</label>
-            <select id="kelasWajah" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <select id="kelasWajah" onchange="onKelasWajahChange()" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
               <option value="">-- Pilih Kelas --</option>
               <option value="7A">Kelas 7A</option>
               <option value="7B">Kelas 7B</option>
@@ -154,14 +154,15 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">2. ID Anak / NIS</label>
-              <input type="text" id="idAnakWajah" placeholder="Contoh: 15495" 
-                     class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">2. Pilih ID Anak / NIS</label>
+              <select id="idAnakWajah" onchange="onNisWajahChange()" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+                <option value="">-- Pilih NIS --</option>
+              </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">3. Nama Lengkap</label>
-              <input type="text" id="namaAnakWajah" placeholder="Contoh: AGUNG WAHYONO" 
-                     class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">3. Nama Lengkap (Otomatis)</label>
+              <input type="text" id="namaAnakWajah" readonly placeholder="Nama otomatis muncul" 
+                     class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-100 font-semibold text-slate-700 outline-none">
             </div>
           </div>
         </div>
@@ -182,7 +183,6 @@
       <!-- TAB 3: REKAP PRESENSI -->
       <div id="tabContentRekap" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-3 shadow-sm">
         
-        <!-- PANEL FILTER REKAP -->
         <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-slate-700"><i class="fa-solid fa-filter mr-1"></i> Filter Data Rekap</span>
@@ -328,6 +328,7 @@
     let lastPresensiTime = {};
     let currentTab = 'presensi';
     let rawRekapData = [];
+    let allSiswaList = [];
 
     const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -427,18 +428,23 @@
       document.getElementById('loginView').classList.remove('hidden');
     }
 
+    // MEMUAT SELURUH DATA SISWA DARI SPREADSHEET
     async function syncMasterWajah() {
       try {
         const result = await postToGoogleSheets({ action: "get_master_wajah" });
         if (result.status === 'success' && result.data.length > 0) {
+          allSiswaList = result.data;
+
           const masterDescriptors = result.data.map(item => {
             try {
-              const vec = JSON.parse(item.vectorWajah);
-              if (Array.isArray(vec) && vec.length === 128) {
-                return new faceapi.LabeledFaceDescriptors(
-                  `${item.idAnak}___${item.namaAnak}___${item.kelas || '-'}`,
-                  [new Float32Array(vec)]
-                );
+              if (item.vectorWajah && item.vectorWajah.length > 20) {
+                const vec = JSON.parse(item.vectorWajah);
+                if (Array.isArray(vec) && vec.length === 128) {
+                  return new faceapi.LabeledFaceDescriptors(
+                    `${item.idAnak}___${item.namaAnak}___${item.kelas || '-'}`,
+                    [new Float32Array(vec)]
+                  );
+                }
               }
             } catch(e) {}
             return null;
@@ -447,9 +453,51 @@
           if (masterDescriptors.length > 0) {
             faceMatcher = new faceapi.FaceMatcher(masterDescriptors, 0.50);
           }
+
+          onKelasWajahChange();
         }
       } catch(e) {
         console.error("Gagal sync master wajah:", e);
+      }
+    }
+
+    // EVENT KETIKA KELAS DIPILIH
+    function onKelasWajahChange() {
+      const selectedKelas = document.getElementById('kelasWajah').value;
+      const selectNis = document.getElementById('idAnakWajah');
+      const inputNama = document.getElementById('namaAnakWajah');
+
+      selectNis.innerHTML = '<option value="">-- Pilih NIS --</option>';
+      inputNama.value = '';
+
+      if (!selectedKelas) return;
+
+      const filteredSiswa = allSiswaList.filter(s => s.kelas.toString().trim().toUpperCase() === selectedKelas.trim().toUpperCase());
+
+      filteredSiswa.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.idAnak;
+        const isRecorded = (s.vectorWajah && s.vectorWajah.length > 20) ? ' [✓ Selesai]' : '';
+        opt.textContent = `${s.idAnak} - ${s.namaAnak}${isRecorded}`;
+        selectNis.appendChild(opt);
+      });
+    }
+
+    // EVENT KETIKA NIS DIPILIH -> NAMA ANAM OTOMATIS TERISI
+    function onNisWajahChange() {
+      const selectedNis = document.getElementById('idAnakWajah').value;
+      const inputNama = document.getElementById('namaAnakWajah');
+
+      if (!selectedNis) {
+        inputNama.value = '';
+        return;
+      }
+
+      const found = allSiswaList.find(s => s.idAnak.toString().trim() === selectedNis.trim());
+      if (found) {
+        inputNama.value = found.namaAnak;
+      } else {
+        inputNama.value = '';
       }
     }
 
@@ -563,8 +611,8 @@
 
     async function submitRekamWajah() {
       const kelas = document.getElementById('kelasWajah').value;
-      const idAnak = document.getElementById('idAnakWajah').value.trim();
-      const namaAnak = document.getElementById('namaAnakWajah').value.trim();
+      const idAnak = document.getElementById('idAnakWajah').value;
+      const namaAnak = document.getElementById('namaAnakWajah').value;
       const video = document.getElementById('webcamWajah');
       const btn = document.getElementById('btnSubmitWajah');
 
@@ -573,7 +621,7 @@
         return;
       }
       if (!idAnak || !namaAnak) {
-        alert("Harap isi ID Anak / NIS dan Nama Lengkap!");
+        alert("Harap pilih ID Anak / NIS terlebih dahulu!");
         return;
       }
 
