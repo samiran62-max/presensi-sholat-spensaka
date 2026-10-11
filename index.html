@@ -100,6 +100,16 @@
           </select>
         </div>
 
+        <!-- PILIHAN KAMERA (HANYA MUNCUL DI HP) -->
+        <div id="cameraFacingContainer" class="hidden">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kamera HP:</label>
+          <select id="cameraFacingMode" onchange="changeCameraFacingMode()" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+            <option value="user">Kamera Depan</option>
+            <option value="environment">Kamera Belakang</option>
+          </select>
+        </div>
+
+        <!-- TAMPILAN KAMERA PEMINDAI WAJAH -->
         <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center border shadow-inner">
           <video id="webcamPresensi" autoplay playsinline muted class="w-full h-full object-cover"></video>
           
@@ -185,6 +195,9 @@
     let lastPresensiTime = {};
     let currentTab = 'presensi';
 
+    // Deteksi jika perangkat adalah Smartphone (HP)
+    const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
     async function postToGoogleSheets(payload) {
       const response = await fetch(SCRIPT_URL, {
         method: 'POST',
@@ -238,6 +251,14 @@
       document.getElementById('userLabel').innerText = currentUser.nama;
       document.getElementById('roleBadge').innerText = currentUser.role;
 
+      // Tampilkan pilihan kamera jika membuka dari HP
+      const cameraFacingContainer = document.getElementById('cameraFacingContainer');
+      if (isMobile) {
+        cameraFacingContainer.classList.remove('hidden');
+      } else {
+        cameraFacingContainer.classList.add('hidden');
+      }
+
       const tabWajah = document.getElementById('tabBtnWajah');
       if (currentUser.role.toLowerCase() === 'petugas') {
         tabWajah.classList.add('hidden');
@@ -288,13 +309,34 @@
 
     async function startCamera(elementId) {
       stopCamera();
+
+      // HP bisa pilih kamera depan ('user') / belakang ('environment'), Laptop/Tablet default 'user'
+      let facingModeValue = 'user';
+      if (isMobile) {
+        const facingSelect = document.getElementById('cameraFacingMode');
+        if (facingSelect) facingModeValue = facingSelect.value;
+      }
+
       try {
         videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "user" } }
+          video: { facingMode: { ideal: facingModeValue } }
         });
         document.getElementById(elementId).srcObject = videoStream;
       } catch (err) {
-        console.log("Kamera tidak aktif.");
+        try {
+          videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          document.getElementById(elementId).srcObject = videoStream;
+        } catch(e) {
+          console.log("Kamera tidak aktif/tidak tersedia.");
+        }
+      }
+    }
+
+    function changeCameraFacingMode() {
+      if (currentTab === 'presensi') {
+        startCamera('webcamPresensi').then(() => startAutoPresensiLoop());
+      } else if (currentTab === 'wajah') {
+        startCamera('webcamWajah');
       }
     }
 
