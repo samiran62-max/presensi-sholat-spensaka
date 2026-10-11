@@ -68,7 +68,7 @@
         </button>
       </div>
 
-      <!-- TAB MENU BERDASARKAN HAK AKSES -->
+      <!-- TAB MENU UTAMA -->
       <div class="flex border-b border-slate-200 bg-white rounded-t-xl overflow-hidden border max-w-2xl mx-auto">
         <button id="tabBtnPresensi" onclick="switchTab('presensi')" 
                 class="flex-1 py-2.5 text-center text-[11px] font-bold border-b-2 border-emerald-600 text-emerald-700 bg-emerald-50">
@@ -170,26 +170,20 @@
         </button>
       </div>
 
-      <!-- TAB 3: REKAP PRESENSI (MODE HARIAN LOG & MODE MATRIX BULANAN TANGGAL 1-31) -->
+      <!-- TAB 3: REKAP PRESENSI HASIL REVISI MODEREN -->
       <div id="tabContentRekap" class="hidden bg-white p-4 rounded-xl border space-y-4 shadow-sm">
         
-        <!-- TOMBOL TOGGLE SWITCHER MODE REKAP -->
-        <div class="flex items-center justify-between border-b pb-3 bg-slate-50 p-2.5 rounded-lg border">
-          <div>
-            <span class="font-bold text-xs text-emerald-800 block"><i class="fa-solid fa-list-check mr-1"></i> Rekap Presensi Siswa</span>
-            <span class="text-[10px] text-slate-500">Pilih mode tampilan rekap yang Anda butuhkan</span>
-          </div>
-          <div class="flex bg-slate-200 p-1 rounded-lg border text-xs gap-1">
-            <button id="btnModeList" onclick="switchRekapMode('list')" class="px-3 py-1.5 rounded-md font-bold bg-emerald-600 text-white shadow transition">
-              <i class="fa-solid fa-list mr-1"></i> Log Harian
-            </button>
-            <button id="btnModeMatrix" onclick="switchRekapMode('matrix')" class="px-3 py-1.5 rounded-md font-bold text-slate-700 hover:text-emerald-700 transition">
-              <i class="fa-solid fa-table-cells mr-1"></i> Matrix Bulanan (1-31)
-            </button>
-          </div>
+        <!-- PILIHAN SUB TAB REKAP -->
+        <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-xl flex gap-2">
+          <button id="btnModeList" onclick="switchRekapMode('list')" class="flex-1 py-2 rounded-lg font-bold text-xs bg-emerald-600 text-white shadow transition text-center">
+            <i class="fa-solid fa-list mr-1"></i> 1. Log Harian
+          </button>
+          <button id="btnModeMatrix" onclick="switchRekapMode('matrix')" class="flex-1 py-2 rounded-lg font-bold text-xs text-slate-700 hover:bg-emerald-100 transition text-center">
+            <i class="fa-solid fa-table-cells mr-1"></i> 2. Matrix Bulanan (1–31)
+          </button>
         </div>
 
-        <!-- MODE 1: FILTER & TABEL LOG DAFTAR HARIAN -->
+        <!-- MODE 1: LOG DAFTAR HARIAN -->
         <div id="viewRekapList" class="space-y-3">
           <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
             <div class="flex items-center justify-between">
@@ -247,7 +241,7 @@
           </div>
         </div>
 
-        <!-- MODE 2: TABEL MATRIX REKAP BULANAN TANGGAL 1-31 (EXCEL STYLE + DENGAN OTOMATIS CEK HAID) -->
+        <!-- MODE 2: MATRIX BULANAN TANGGAL 1-31 PERSIS EXCEL + LOGIKA OTOMATIS HAID -->
         <div id="viewRekapMatrix" class="hidden space-y-3">
           <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
             <div class="font-bold text-xs text-slate-700"><i class="fa-solid fa-filter mr-1"></i> Filter Matrix Bulanan (Tanggal 1–31)</div>
@@ -782,14 +776,14 @@
       const viewMatrix = document.getElementById('viewRekapMatrix');
 
       if (mode === 'list') {
-        btnList.className = "px-3 py-1.5 rounded-md font-bold bg-emerald-600 text-white shadow transition";
-        btnMatrix.className = "px-3 py-1.5 rounded-md font-bold text-slate-700 hover:text-emerald-700 transition";
+        btnList.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-emerald-600 text-white shadow transition text-center";
+        btnMatrix.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-700 hover:bg-emerald-100 transition text-center";
         viewList.classList.remove('hidden');
         viewMatrix.classList.add('hidden');
         renderFilteredRekap();
       } else {
-        btnMatrix.className = "px-3 py-1.5 rounded-md font-bold bg-emerald-600 text-white shadow transition";
-        btnList.className = "px-3 py-1.5 rounded-md font-bold text-slate-700 hover:text-emerald-700 transition";
+        btnMatrix.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-emerald-600 text-white shadow transition text-center";
+        btnList.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-700 hover:bg-emerald-100 transition text-center";
         viewMatrix.classList.remove('hidden');
         viewList.classList.add('hidden');
         renderMatrixBulanan();
@@ -849,7 +843,6 @@
       }
     }
 
-    // MATRIX REKAP BULANAN TANGGAL 1 SAMPAI 31
     function renderMatrixBulanan() {
       const bulanInt = parseInt(document.getElementById('matrixBulan').value);
       const tahunInt = parseInt(document.getElementById('matrixTahun').value);
@@ -893,7 +886,6 @@
         }
       });
 
-      // Render Header
       const headerThead = document.getElementById('matrixHeader');
       let thHTML = `<tr class="border-b border-slate-300">
         <th class="p-1.5 border-r min-w-[30px]">No</th>
@@ -909,7 +901,6 @@
       thHTML += `</tr>`;
       headerThead.innerHTML = thHTML;
 
-      // Render Baris Siswa
       const bodyTbody = document.getElementById('matrixBody');
       if (targetSiswa.length === 0) {
         bodyTbody.innerHTML = `<tr><td colspan="${6 + totalHariBulan}" class="p-4 text-center text-slate-400">Tidak ada data siswa untuk kelas ini.</td></tr>`;
@@ -942,7 +933,6 @@
               if (dayData[selectedSholat]) {
                 val = selectedSholat;
               } else if (dayData['Haid']) {
-                // LOGIKA OTOMATIS: Jika sholat tersebut "-" tapi terekam Haid -> tampilkan Haid
                 val = 'Haid';
               }
             }
