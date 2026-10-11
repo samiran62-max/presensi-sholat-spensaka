@@ -92,16 +92,22 @@
       <div id="tabContentPresensi" class="bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kegiatan / Sholat:</label>
-          <select id="jenisSholat" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
-            <option value="Maghrib">Maghrib</option>
-            <option value="Isya">Isya</option>
-            <option value="Subuh">Subuh</option>
+          <select id="jenisSholat" onchange="toggleJenisSholatLainnya()" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
             <option value="Dhuha">Dhuha</option>
             <option value="Dzuhur">Dzuhur</option>
-            <option value="Ashar">Ashar</option>
             <option value="Jumat">Jumat</option>
-            <option value="Istighozah">Istighozah</option>
+            <option value="Istighosah">Istighosah</option>
+            <option value="Maulid Nabi">Maulid Nabi</option>
+            <option value="Idul Adha">Idul Adha</option>
+            <option value="Haid">Haid</option>
+            <option value="Lainnya">Lainnya (Ketik Manual)</option>
           </select>
+        </div>
+
+        <!-- FORM INPUT MANUAL JIKA PILIH "LAINNYA" -->
+        <div id="containerSholatLainnya" class="hidden">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tuliskan Nama Sholat / Kegiatan:</label>
+          <input type="text" id="inputSholatLainnya" placeholder="Contoh: Sholat Hajat" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
         </div>
 
         <div id="cameraFacingContainer" class="hidden">
@@ -120,7 +126,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: REKAM WAJAH (DROPDOWN KELAS & NIS -> NAMA OTOMATIS) -->
+      <!-- TAB 2: REKAM WAJAH SISWA -->
       <div id="tabContentWajah" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-lg text-xs">
           <i class="fa-solid fa-user-plus mr-1"></i> Form Pendaftaran Master Wajah Siswa
@@ -224,14 +230,14 @@
               <label class="block text-[10px] text-slate-500 mb-0.5">Sholat</label>
               <select id="filterSholat" onchange="renderFilteredRekap()" class="w-full px-2 py-1 border rounded bg-white outline-none">
                 <option value="ALL">Semua</option>
-                <option value="Maghrib">Maghrib</option>
-                <option value="Isya">Isya</option>
-                <option value="Subuh">Subuh</option>
                 <option value="Dhuha">Dhuha</option>
                 <option value="Dzuhur">Dzuhur</option>
-                <option value="Ashar">Ashar</option>
                 <option value="Jumat">Jumat</option>
-                <option value="Istighozah">Istighozah</option>
+                <option value="Istighosah">Istighosah</option>
+                <option value="Maulid Nabi">Maulid Nabi</option>
+                <option value="Idul Adha">Idul Adha</option>
+                <option value="Haid">Haid</option>
+                <option value="Lainnya">Lainnya</option>
               </select>
             </div>
           </div>
@@ -428,7 +434,25 @@
       document.getElementById('loginView').classList.remove('hidden');
     }
 
-    // MEMUAT SELURUH DATA SISWA DARI SPREADSHEET
+    function toggleJenisSholatLainnya() {
+      const val = document.getElementById('jenisSholat').value;
+      const container = document.getElementById('containerSholatLainnya');
+      if (val === 'Lainnya') {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    function getSelectedJenisSholat() {
+      const val = document.getElementById('jenisSholat').value;
+      if (val === 'Lainnya') {
+        const customText = document.getElementById('inputSholatLainnya').value.trim();
+        return customText !== '' ? customText : 'Lainnya';
+      }
+      return val;
+    }
+
     async function syncMasterWajah() {
       try {
         const result = await postToGoogleSheets({ action: "get_master_wajah" });
@@ -461,7 +485,6 @@
       }
     }
 
-    // EVENT KETIKA KELAS DIPILIH
     function onKelasWajahChange() {
       const selectedKelas = document.getElementById('kelasWajah').value;
       const selectNis = document.getElementById('idAnakWajah');
@@ -483,7 +506,6 @@
       });
     }
 
-    // EVENT KETIKA NIS DIPILIH -> NAMA ANAM OTOMATIS TERISI
     function onNisWajahChange() {
       const selectedNis = document.getElementById('idAnakWajah').value;
       const inputNama = document.getElementById('namaAnakWajah');
@@ -577,13 +599,13 @@
                 statusDiv.className = "absolute bottom-2 left-2 right-2 bg-emerald-600/95 text-white px-3 py-1.5 rounded-lg text-xs font-bold text-center animate-pulse shadow";
                 statusDiv.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Terdeteksi: ${namaAnak} (${kelas}) - Menyimpan...`;
 
-                const jenisSholat = document.getElementById('jenisSholat').value;
+                const jenisSholatSelected = getSelectedJenisSholat();
                 const result = await postToGoogleSheets({
                   action: "simpan_presensi",
                   idAnak: idAnak,
                   namaAnak: namaAnak,
                   kelas: kelas,
-                  jenisSholat: jenisSholat
+                  jenisSholat: jenisSholatSelected
                 });
 
                 if (result.status === 'success') {
@@ -689,12 +711,35 @@
       const filterKelas = document.getElementById('filterKelas').value;
       const filterSholat = document.getElementById('filterSholat').value;
 
-      const filtered = rawRekapData.filter(item => {
+      // 1. DEDUPLIKASI: HANYA AMBIL 1 PRESENSI TERAKHIR PER SISWA, PER TANGGAL, PER JENIS SHOLAT
+      const deduplicatedData = [];
+      const seenKeys = new Set();
+
+      for (const item of rawRekapData) {
+        const itemDate = item.waktu ? item.waktu.substring(0, 10) : '';
+        const key = `${item.idAnak}_${itemDate}_${item.jenisSholat}`;
+
+        if (!seenKeys.has(key)) {
+          seenKeys.add(key);
+          deduplicatedData.push(item);
+        }
+      }
+
+      // 2. FILTER BERDASARKAN KRITERIA PILIHAN USER
+      const filtered = deduplicatedData.filter(item => {
         const itemDate = item.waktu ? item.waktu.substring(0, 10) : '';
 
         if (filterTanggal && itemDate !== filterTanggal) return false;
         if (filterKelas !== 'ALL' && item.kelas !== filterKelas) return false;
-        if (filterSholat !== 'ALL' && item.jenisSholat !== filterSholat) return false;
+
+        if (filterSholat !== 'ALL') {
+          if (filterSholat === 'Lainnya') {
+            const standardOptions = ['Dhuha', 'Dzuhur', 'Jumat', 'Istighosah', 'Maulid Nabi', 'Idul Adha', 'Haid'];
+            if (standardOptions.includes(item.jenisSholat)) return false;
+          } else if (item.jenisSholat !== filterSholat) {
+            return false;
+          }
+        }
 
         return true;
       });
