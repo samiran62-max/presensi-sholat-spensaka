@@ -23,10 +23,10 @@
     </div>
   </header>
 
-  <main class="max-w-md mx-auto p-4">
+  <main class="max-w-5xl mx-auto p-3">
 
     <!-- 1. HALAMAN LOGIN -->
-    <div id="loginView" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
+    <div id="loginView" class="max-w-md mx-auto bg-white rounded-2xl shadow-sm border p-6 space-y-4">
       <div class="text-center space-y-1">
         <div class="inline-block p-3 bg-emerald-50 rounded-full text-emerald-700 mb-1">
           <i class="fa-solid fa-camera-rotate text-2xl"></i>
@@ -80,7 +80,7 @@
         </button>
         <button id="tabBtnRekap" onclick="switchTab('rekap')" 
                 class="flex-1 py-2.5 text-center text-[11px] font-bold text-slate-500 hover:text-emerald-600">
-          <i class="fa-solid fa-list-check block mb-0.5 text-sm"></i> Rekap
+          <i class="fa-solid fa-list-check block mb-0.5 text-sm"></i> Rekap Data
         </button>
         <button id="tabBtnUsers" onclick="switchTab('users')" 
                 class="flex-1 py-2.5 text-center text-[11px] font-bold text-slate-500 hover:text-emerald-600">
@@ -89,7 +89,7 @@
       </div>
 
       <!-- TAB 1: PRESENSI OTOMATIS -->
-      <div id="tabContentPresensi" class="bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
+      <div id="tabContentPresensi" class="max-w-md mx-auto bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Kegiatan / Sholat:</label>
           <select id="jenisSholat" onchange="toggleJenisSholatLainnya()" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
@@ -104,7 +104,6 @@
           </select>
         </div>
 
-        <!-- FORM INPUT MANUAL JIKA PILIH "LAINNYA" -->
         <div id="containerSholatLainnya" class="hidden">
           <label class="block text-xs font-semibold text-slate-600 mb-1">Tuliskan Nama Sholat / Kegiatan:</label>
           <input type="text" id="inputSholatLainnya" placeholder="Contoh: Sholat Hajat" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
@@ -127,7 +126,7 @@
       </div>
 
       <!-- TAB 2: REKAM WAJAH SISWA -->
-      <div id="tabContentWajah" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
+      <div id="tabContentWajah" class="max-w-md mx-auto hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-lg text-xs">
           <i class="fa-solid fa-user-plus mr-1"></i> Form Pendaftaran Master Wajah Siswa
         </div>
@@ -186,89 +185,154 @@
         </button>
       </div>
 
-      <!-- TAB 3: REKAP PRESENSI -->
+      <!-- TAB 3: REKAP PRESENSI (MODE DAFTAR & MATRIX BULANAN 1-31) -->
       <div id="tabContentRekap" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-3 shadow-sm">
         
-        <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-xs text-slate-700"><i class="fa-solid fa-filter mr-1"></i> Filter Data Rekap</span>
-            <button onclick="setTodayFilter()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-[11px] font-bold transition shadow">
-              <i class="fa-solid fa-calendar-day mr-1"></i> Hari Ini (Today)
+        <div class="flex items-center justify-between border-b pb-2">
+          <span class="font-bold text-xs text-emerald-800"><i class="fa-solid fa-list-check mr-1"></i> Rekap Presensi Siswa</span>
+          <div class="flex bg-slate-100 p-1 rounded-lg border text-xs">
+            <button id="btnModeList" onclick="switchRekapMode('list')" class="px-3 py-1 rounded-md font-bold bg-emerald-600 text-white shadow">
+              <i class="fa-solid fa-list mr-1"></i> Tampilan Log
+            </button>
+            <button id="btnModeMatrix" onclick="switchRekapMode('matrix')" class="px-3 py-1 rounded-md font-bold text-slate-600 hover:text-emerald-700">
+              <i class="fa-solid fa-table-cells mr-1"></i> Tampilan Matrix Bulanan (1-31)
             </button>
           </div>
+        </div>
 
-          <div class="grid grid-cols-3 gap-2 text-xs">
-            <div>
-              <label class="block text-[10px] text-slate-500 mb-0.5">Tanggal</label>
-              <input type="date" id="filterTanggal" onchange="renderFilteredRekap()" class="w-full px-2 py-1 border rounded bg-white outline-none">
+        <!-- MODE 1: FILTER & TABEL LOG DAFTAR HARIAN -->
+        <div id="viewRekapList" class="space-y-3">
+          <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-700"><i class="fa-solid fa-filter mr-1"></i> Filter Data Log</span>
+              <button onclick="setTodayFilter()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-[11px] font-bold transition shadow">
+                <i class="fa-solid fa-calendar-day mr-1"></i> Hari Ini (Today)
+              </button>
             </div>
-            <div>
-              <label class="block text-[10px] text-slate-500 mb-0.5">Kelas</label>
-              <select id="filterKelas" onchange="renderFilteredRekap()" class="w-full px-2 py-1 border rounded bg-white outline-none">
-                <option value="ALL">Semua Kelas</option>
-                <option value="7A">7A</option>
-                <option value="7B">7B</option>
-                <option value="7C">7C</option>
-                <option value="7D">7D</option>
-                <option value="7E">7E</option>
-                <option value="7F">7F</option>
-                <option value="8A">8A</option>
-                <option value="8B">8B</option>
-                <option value="8C">8C</option>
-                <option value="8D">8D</option>
-                <option value="8E">8E</option>
-                <option value="8F">8F</option>
-                <option value="9A">9A</option>
-                <option value="9B">9B</option>
-                <option value="9C">9C</option>
-                <option value="9D">9D</option>
-                <option value="9E">9E</option>
-                <option value="9F">9F</option>
-              </select>
+
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Tanggal</label>
+                <input type="date" id="filterTanggal" onchange="renderFilteredRekap()" class="w-full px-2 py-1 border rounded bg-white outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Kelas</label>
+                <select id="filterKelas" onchange="renderFilteredRekap()" class="w-full px-2 py-1 border rounded bg-white outline-none">
+                  <option value="ALL">Semua Kelas</option>
+                  <option value="7A">7A</option><option value="7B">7B</option><option value="7C">7C</option><option value="7D">7D</option><option value="7E">7E</option><option value="7F">7F</option>
+                  <option value="8A">8A</option><option value="8B">8B</option><option value="8C">8C</option><option value="8D">8D</option><option value="8E">8E</option><option value="8F">8F</option>
+                  <option value="9A">9A</option><option value="9B">9B</option><option value="9C">9C</option><option value="9D">9D</option><option value="9E">9E</option><option value="9F">9F</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Sholat</label>
+                <select id="filterSholat" onchange="renderFilteredRekap()" class="w-full px-2 py-1 border rounded bg-white outline-none">
+                  <option value="ALL">Semua</option>
+                  <option value="Dhuha">Dhuha</option><option value="Dzuhur">Dzuhur</option><option value="Jumat">Jumat</option>
+                  <option value="Istighosah">Istighosah</option><option value="Maulid Nabi">Maulid Nabi</option>
+                  <option value="Idul Adha">Idul Adha</option><option value="Haid">Haid</option><option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label class="block text-[10px] text-slate-500 mb-0.5">Sholat</label>
-              <select id="filterSholat" onchange="renderFilteredRekap()" class="w-full px-2 py-1 border rounded bg-white outline-none">
-                <option value="ALL">Semua</option>
-                <option value="Dhuha">Dhuha</option>
-                <option value="Dzuhur">Dzuhur</option>
-                <option value="Jumat">Jumat</option>
-                <option value="Istighosah">Istighosah</option>
-                <option value="Maulid Nabi">Maulid Nabi</option>
-                <option value="Idul Adha">Idul Adha</option>
-                <option value="Haid">Haid</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
+
+            <div class="flex justify-between items-center text-[10px] pt-1">
+              <span id="rekapCountLabel" class="font-bold text-emerald-800">Menampilkan 0 data</span>
+              <button onclick="resetRekapFilter()" class="text-red-500 hover:underline">Reset Filter</button>
             </div>
           </div>
 
-          <div class="flex justify-between items-center text-[10px] pt-1">
-            <span id="rekapCountLabel" class="font-bold text-emerald-800">Menampilkan 0 data</span>
-            <button onclick="resetRekapFilter()" class="text-red-500 hover:underline">Reset Filter</button>
+          <div class="overflow-x-auto border rounded-lg">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-600 border-b">
+                  <th class="p-2">Waktu</th>
+                  <th class="p-2">Kelas</th>
+                  <th class="p-2">NIS & Nama</th>
+                  <th class="p-2">Sholat</th>
+                </tr>
+              </thead>
+              <tbody id="rekapTableBody">
+                <tr><td colspan="4" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr class="bg-slate-100 text-slate-600 border-b">
-                <th class="p-2">Waktu</th>
-                <th class="p-2">Kelas</th>
-                <th class="p-2">NIS & Nama</th>
-                <th class="p-2">Sholat</th>
-              </tr>
-            </thead>
-            <tbody id="rekapTableBody">
-              <tr>
-                <td colspan="4" class="p-4 text-center text-slate-400">Memuat data...</td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- MODE 2: TABEL MATRIX REKAP BULANAN TANGGAL 1-31 (DENGAN LOGIKA OTOMATIS CEK HAID) -->
+        <div id="viewRekapMatrix" class="hidden space-y-3">
+          <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
+            <div class="font-bold text-xs text-slate-700"><i class="fa-solid fa-filter mr-1"></i> Filter Matrix Bulanan</div>
+            <div class="grid grid-cols-4 gap-2 text-xs">
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Bulan</label>
+                <select id="matrixBulan" onchange="renderMatrixBulanan()" class="w-full px-2 py-1 border rounded bg-white outline-none font-semibold">
+                  <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                  <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                  <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                  <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Tahun</label>
+                <select id="matrixTahun" onchange="renderMatrixBulanan()" class="w-full px-2 py-1 border rounded bg-white outline-none font-semibold">
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Kelas</label>
+                <select id="matrixKelas" onchange="renderMatrixBulanan()" class="w-full px-2 py-1 border rounded bg-white outline-none font-semibold">
+                  <option value="7A">7A</option><option value="7B">7B</option><option value="7C">7C</option><option value="7D">7D</option><option value="7E">7E</option><option value="7F">7F</option>
+                  <option value="8A">8A</option><option value="8B">8B</option><option value="8C">8C</option><option value="8D">8D</option><option value="8E">8E</option><option value="8F">8F</option>
+                  <option value="9A">9A</option><option value="9B">9B</option><option value="9C">9C</option><option value="9D">9D</option><option value="9E">9E</option><option value="9F">9F</option>
+                  <option value="ALL">Semua Kelas</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 mb-0.5">Jenis Sholat</label>
+                <select id="matrixSholat" onchange="renderMatrixBulanan()" class="w-full px-2 py-1 border rounded bg-white outline-none font-semibold">
+                  <option value="Dzuhur">Dzuhur</option>
+                  <option value="Dhuha">Dhuha</option>
+                  <option value="Jumat">Jumat</option>
+                  <option value="Istighosah">Istighosah</option>
+                  <option value="Maulid Nabi">Maulid Nabi</option>
+                  <option value="Idul Adha">Idul Adha</option>
+                  <option value="Haid">Haid</option>
+                  <option value="ALL">Semua Jenis Sholat</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="border rounded-xl bg-white p-3 space-y-2 shadow-sm overflow-hidden">
+            <div class="text-xs space-y-0.5 font-bold text-slate-700 border-b pb-2">
+              <p>Bulan: <span id="labelMatrixBulan" class="text-emerald-700 font-extrabold">-</span></p>
+              <p>Jenis: <span id="labelMatrixJenis" class="text-emerald-700 font-extrabold">-</span></p>
+            </div>
+
+            <div class="overflow-x-auto max-h-[500px]">
+              <table id="tableMatrixBulanan" class="w-full text-center text-[10px] border-collapse border border-slate-300">
+                <thead id="matrixHeader" class="bg-slate-100 text-slate-700 sticky top-0 border-b border-slate-300">
+                  <!-- Header 1..31 -->
+                </thead>
+                <tbody id="matrixBody">
+                  <!-- Baris siswa -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="text-[10px] text-slate-500 pt-1 flex items-center justify-between">
+              <span><i class="fa-solid fa-circle-info mr-1"></i> Tanda <b>-</b> : Tidak Sholat Berjamaah / Belum Presensi</span>
+              <span id="matrixTotalSiswa" class="font-bold text-slate-700">Total: 0 Siswa</span>
+            </div>
+          </div>
         </div>
+
       </div>
 
       <!-- TAB 4: KELOLA USER (ADMIN) -->
-      <div id="tabContentUsers" class="hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
+      <div id="tabContentUsers" class="max-w-md mx-auto hidden bg-white p-4 rounded-b-xl border border-t-0 space-y-4 shadow-sm">
         <h3 class="font-bold text-sm text-slate-700">Tambah Akun Pengguna Baru</h3>
         
         <form onsubmit="handleTambahUser(event)" class="space-y-3 bg-slate-50 p-3 rounded-xl border">
@@ -333,9 +397,11 @@
     let isProcessingPresensi = false;
     let lastPresensiTime = {};
     let currentTab = 'presensi';
+    let currentRekapMode = 'list';
     let rawRekapData = [];
     let allSiswaList = [];
 
+    const namaBulanMap = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     async function postToGoogleSheets(payload) {
@@ -419,6 +485,10 @@
       }
 
       applyRolePermissions();
+
+      const now = new Date();
+      document.getElementById('matrixBulan').value = (now.getMonth() + 1).toString();
+      document.getElementById('matrixTahun').value = now.getFullYear().toString();
 
       if (!isModelsLoaded) await loadModels();
       await syncMasterWajah();
@@ -697,7 +767,11 @@
         const result = await postToGoogleSheets({ action: "get_rekap" });
         if (result.status === 'success' && result.data) {
           rawRekapData = result.data;
-          renderFilteredRekap();
+          if (currentRekapMode === 'list') {
+            renderFilteredRekap();
+          } else {
+            renderMatrixBulanan();
+          }
         } else {
           tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada data presensi.</td></tr>';
         }
@@ -706,12 +780,33 @@
       }
     }
 
+    function switchRekapMode(mode) {
+      currentRekapMode = mode;
+      const btnList = document.getElementById('btnModeList');
+      const btnMatrix = document.getElementById('btnModeMatrix');
+      const viewList = document.getElementById('viewRekapList');
+      const viewMatrix = document.getElementById('viewRekapMatrix');
+
+      if (mode === 'list') {
+        btnList.className = "px-3 py-1 rounded-md font-bold bg-emerald-600 text-white shadow";
+        btnMatrix.className = "px-3 py-1 rounded-md font-bold text-slate-600 hover:text-emerald-700";
+        viewList.classList.remove('hidden');
+        viewMatrix.classList.add('hidden');
+        renderFilteredRekap();
+      } else {
+        btnMatrix.className = "px-3 py-1 rounded-md font-bold bg-emerald-600 text-white shadow";
+        btnList.className = "px-3 py-1 rounded-md font-bold text-slate-600 hover:text-emerald-700";
+        viewMatrix.classList.remove('hidden');
+        viewList.classList.add('hidden');
+        renderMatrixBulanan();
+      }
+    }
+
     function renderFilteredRekap() {
       const filterTanggal = document.getElementById('filterTanggal').value;
       const filterKelas = document.getElementById('filterKelas').value;
       const filterSholat = document.getElementById('filterSholat').value;
 
-      // 1. DEDUPLIKASI: HANYA AMBIL 1 PRESENSI TERAKHIR PER SISWA, PER TANGGAL, PER JENIS SHOLAT
       const deduplicatedData = [];
       const seenKeys = new Set();
 
@@ -725,7 +820,6 @@
         }
       }
 
-      // 2. FILTER BERDASARKAN KRITERIA PILIHAN USER
       const filtered = deduplicatedData.filter(item => {
         const itemDate = item.waktu ? item.waktu.substring(0, 10) : '';
 
@@ -759,6 +853,115 @@
       } else {
         tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Data tidak ditemukan sesuai filter.</td></tr>';
       }
+    }
+
+    // RENDER MATRIX BULANAN DENGAN LOGIKA OTOMATIS: JIKA TIDAK SHOLAT PADA SHOLAT TERSEBUT TAPI TEREKAP HAID -> TAMPILKAN HAID
+    function renderMatrixBulanan() {
+      const bulanInt = parseInt(document.getElementById('matrixBulan').value);
+      const tahunInt = parseInt(document.getElementById('matrixTahun').value);
+      const selectedKelas = document.getElementById('matrixKelas').value;
+      const selectedSholat = document.getElementById('matrixSholat').value;
+
+      document.getElementById('labelMatrixBulan').innerText = `${namaBulanMap[bulanInt]} ${tahunInt}`;
+      document.getElementById('labelMatrixJenis').innerText = selectedSholat === 'ALL' ? 'Semua Sholat' : selectedSholat;
+
+      const totalHariBulan = new Date(tahunInt, bulanInt, 0).getDate();
+
+      let targetSiswa = allSiswaList;
+      if (selectedKelas !== 'ALL') {
+        targetSiswa = allSiswaList.filter(s => s.kelas.toString().trim().toUpperCase() === selectedKelas.trim().toUpperCase());
+      }
+
+      document.getElementById('matrixTotalSiswa').innerText = `Total: ${targetSiswa.length} Siswa`;
+
+      // Simpan seluruh aktivitas per siswa per hari
+      const presensiMap = {};
+
+      rawRekapData.forEach(item => {
+        if (!item.waktu) return;
+        
+        const parts = item.waktu.split(' ')[0].split('-');
+        if (parts.length < 3) return;
+
+        const y = parseInt(parts[0]);
+        const m = parseInt(parts[1]);
+        const d = parseInt(parts[2]);
+
+        if (y === tahunInt && m === bulanInt) {
+          if (!presensiMap[item.idAnak]) presensiMap[item.idAnak] = {};
+          if (!presensiMap[item.idAnak][d]) presensiMap[item.idAnak][d] = {};
+          presensiMap[item.idAnak][d][item.jenisSholat] = item.jenisSholat;
+        }
+      });
+
+      // Render Header (No, ID, NISN, Nama, L/P, Kelas, 1..31)
+      const headerThead = document.getElementById('matrixHeader');
+      let thHTML = `<tr class="border-b border-slate-300">
+        <th class="p-1.5 border-r min-w-[30px]">No</th>
+        <th class="p-1.5 border-r min-w-[60px]">ID Anak/NIS</th>
+        <th class="p-1.5 border-r min-w-[70px]">NISN</th>
+        <th class="p-1.5 border-r text-left min-w-[150px]">Nama Anak</th>
+        <th class="p-1.5 border-r min-w-[30px]">L/P</th>
+        <th class="p-1.5 border-r min-w-[40px]">Kelas</th>`;
+
+      for (let h = 1; h <= totalHariBulan; h++) {
+        thHTML += `<th class="p-1 border-r min-w-[32px]">${h}</th>`;
+      }
+      thHTML += `</tr>`;
+      headerThead.innerHTML = thHTML;
+
+      // Render Baris Siswa
+      const bodyTbody = document.getElementById('matrixBody');
+      if (targetSiswa.length === 0) {
+        bodyTbody.innerHTML = `<tr><td colspan="${6 + totalHariBulan}" class="p-4 text-center text-slate-400">Tidak ada data siswa untuk kelas ini.</td></tr>`;
+        return;
+      }
+
+      let bodyHTML = '';
+      targetSiswa.forEach((s, idx) => {
+        bodyHTML += `<tr class="border-b hover:bg-slate-50 border-slate-200">
+          <td class="p-1 border-r font-mono">${s.no || (idx + 1)}</td>
+          <td class="p-1 border-r font-mono">${s.idAnak}</td>
+          <td class="p-1 border-r font-mono text-slate-500">${s.nisn || '-'}</td>
+          <td class="p-1 border-r font-semibold text-left text-slate-800">${s.namaAnak}</td>
+          <td class="p-1 border-r">${s.lp || '-'}</td>
+          <td class="p-1 border-r font-bold text-slate-600">${s.kelas}</td>`;
+
+        for (let h = 1; h <= totalHariBulan; h++) {
+          let val = '-';
+          const dayData = (presensiMap[s.idAnak] && presensiMap[s.idAnak][h]) ? presensiMap[s.idAnak][h] : null;
+
+          if (dayData) {
+            if (selectedSholat === 'ALL') {
+              const keys = Object.keys(dayData);
+              if (keys.length > 0) {
+                val = keys[0];
+              }
+            } else {
+              // Jika presensi sholat tertentu terisi (misal Dzuhur)
+              if (dayData[selectedSholat]) {
+                val = selectedSholat;
+              } else if (dayData['Haid']) {
+                // LOGIKA TAMBAHAN: Jika sholat tersebut "-" tetapi terekam Haid, ganti "-" dengan "Haid"
+                val = 'Haid';
+              }
+            }
+          }
+
+          let bgClass = 'text-slate-400';
+          if (val === 'Haid') {
+            bgClass = 'bg-rose-100 text-rose-800 font-bold'; // Warna merah muda untuk Haid
+          } else if (val !== '-') {
+            bgClass = 'bg-emerald-100 text-emerald-800 font-bold'; // Warna hijau untuk sholat
+          }
+
+          bodyHTML += `<td class="p-1 border-r text-[9px] ${bgClass}">${val}</td>`;
+        }
+
+        bodyHTML += `</tr>`;
+      });
+
+      bodyTbody.innerHTML = bodyHTML;
     }
 
     function setTodayFilter() {
