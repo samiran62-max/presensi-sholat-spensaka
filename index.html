@@ -689,7 +689,8 @@
           }).filter(x => x !== null);
 
           if (masterDescriptors.length > 0) {
-            faceMatcher = new faceapi.FaceMatcher(masterDescriptors, 0.50);
+            // PERKETAT DISTANCE THRESHOLD KE 0.38
+            faceMatcher = new faceapi.FaceMatcher(masterDescriptors, 0.38);
           }
 
           onKelasWajahChange();
@@ -794,9 +795,10 @@
         }
 
         try {
+          // RESOLUSI PINDAI DINAIKKAN KE 416 & SCORE THRESHOLD KE 0.65
           const detection = await faceapi.detectSingleFace(
             video, 
-            new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
+            new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.65 })
           ).withFaceLandmarks().withFaceDescriptor();
 
           if (detection) {
@@ -865,13 +867,14 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Memindai Wajah...';
 
       try {
+        // RESOLUSI MASTER DINAIKKAN KE 416 & SCORE THRESHOLD KE 0.70
         const detection = await faceapi.detectSingleFace(
           video, 
-          new faceapi.TinyFaceDetectorOptions()
+          new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.70 })
         ).withFaceLandmarks().withFaceDescriptor();
 
         if (!detection) {
-          alert("Wajah tidak terdeteksi! Pastikan wajah terlihat jelas di depan kamera.");
+          alert("Wajah tidak terdeteksi presisi! Pastikan posisi wajah tegak dan cahaya cukup.");
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Master Wajah Siswa';
           return;
@@ -1063,7 +1066,6 @@
         }
       });
 
-      // Deteksi Hari Kegiatan Sholat per Kelas
       const classPrayerDays = {};
       const allClassNames = [...new Set(allSiswaList.map(s => (s.kelas || '').toString().trim().toUpperCase()))];
 
